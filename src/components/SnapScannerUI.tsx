@@ -138,7 +138,7 @@ export default function SnapScannerUI() {
       if (typeof source === 'string') {
         base64Image = await urlToBase64(source);
       } else {
-        base64Image = await fileToBase64(source);
+        base64Image = await compressImage(source);
       }
       
       setProgress({ status: "Analyzing image contents", progress: 60 });
