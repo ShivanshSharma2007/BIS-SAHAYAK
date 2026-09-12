@@ -1,0 +1,1629 @@
+{
+  "standards": [
+    {
+      "id": "std-694",
+      "standardNumber": "IS 694:2010",
+      "title": "PVC Insulated Cables for Working Voltages up to and including 1100 V",
+      "description": "Specifies materials, conductor purity, PVC insulation sheath thickness, and flammability parameters for building and industrial power cables.",
+      "productCategory": "Electrotechnical (ETD) - Cables & Conductors",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "cable",
+        "wire",
+        "copper",
+        "pvc",
+        "sheath",
+        "conductor",
+        "flame",
+        "voltage"
+      ],
+      "lastUpdated": "2024-02-15T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-694-1",
+          "clauseNumber": "Clause 6.2",
+          "title": "Conductor Construction & Electrical Resistance at 20°C",
+          "description": "High-conductivity annealed electrolytic grade copper conductor class 2 electrical resistance.",
+          "isMandatory": true,
+          "testMethod": "Kelvin Double Bridge measurement in thermostatic water bath at 20°C +/- 0.5°C",
+          "acceptableLimit": "Maximum 12.10 Ohm/km for 1.5 sq mm"
+        },
+        {
+          "id": "cl-694-2",
+          "clauseNumber": "Clause 8.1",
+          "title": "PVC Insulation Thickness & Dimensional Uniformity",
+          "description": "Radial thickness of Type A PVC insulation compound protecting the live core.",
+          "isMandatory": true,
+          "testMethod": "Optical profile projector inspection across 6 circumferential cross-sections",
+          "acceptableLimit": "Nominal 0.70 mm; Minimum individual point >= 0.53 mm"
+        },
+        {
+          "id": "cl-694-3",
+          "clauseNumber": "Clause 14.3",
+          "title": "High Voltage Spark & Dielectric Withstand Test",
+          "description": "Dielectric insulation breakdown prevention under high potential AC spark.",
+          "isMandatory": true,
+          "testMethod": "Continuous 6.0 kV AC bead-chain spark test during high-speed extrusion run",
+          "acceptableLimit": "Zero puncture, sparkover, or dielectric breakdown"
+        },
+        {
+          "id": "cl-694-4",
+          "clauseNumber": "Clause 16.1",
+          "title": "Flammability Retardance & Oxygen Index (IS 10810 Pt 58)",
+          "description": "Minimum oxygen percentage required to sustain burning of outer PVC sheath.",
+          "isMandatory": true,
+          "testMethod": "Controlled chimney burner oxygen index chamber test",
+          "acceptableLimit": "Oxygen Index >= 29.0%"
+        }
+      ]
+    },
+    {
+      "id": "std-1293",
+      "standardNumber": "IS 1293:2019",
+      "title": "Plugs and Socket-Outlets for Household and Similar Purposes of Rated Voltage up to 250V and Rated Current up to 16A",
+      "description": "Statutory safety requirements for domestic plugs and socket-outlets, mandatory safety shutters, thermal rise, and glow-wire fire resistance.",
+      "productCategory": "Electrotechnical (ETD) - Wiring Accessories",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "plug",
+        "socket",
+        "outlet",
+        "pin",
+        "ampere",
+        "shutter",
+        "flammability",
+        "wiring"
+      ],
+      "lastUpdated": "2024-01-15T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-1293-1",
+          "clauseNumber": "Clause 7.1",
+          "title": "Automatic Safety Shutter Mechanism",
+          "description": "Live socket contacts must be protected by integral automatic shutters preventing single-pin insertion.",
+          "isMandatory": true,
+          "testMethod": "Single probe insertion gauge test (1.0 mm steel wire at 20 N force)",
+          "acceptableLimit": "No contact with live metal"
+        },
+        {
+          "id": "cl-1293-2",
+          "clauseNumber": "Clause 8.1",
+          "title": "Dimensions and Interchangeability",
+          "description": "Standard gauge dimensions for 2-pin and 3-pin plugs to prevent improper mating with non-standard sockets.",
+          "isMandatory": true,
+          "testMethod": "Go / No-Go Calibrated Plug Gauge Inspection",
+          "acceptableLimit": "Conforms to Table 1 & Table 2 tolerances"
+        },
+        {
+          "id": "cl-1293-3",
+          "clauseNumber": "Clause 14.1",
+          "title": "Temperature Rise Under 16A Continuous Load",
+          "description": "Terminal and contact temperature rise under continuous full-load current.",
+          "isMandatory": true,
+          "testMethod": "Thermocouple measurement after 1 hour continuous 16A AC current",
+          "acceptableLimit": "Temperature rise <= 45 K"
+        },
+        {
+          "id": "cl-1293-4",
+          "clauseNumber": "Clause 19.1",
+          "title": "Mechanical Durability & Endurance (10,000 Cycles)",
+          "description": "Shutter and contact retention spring endurance under repetitive insertion and withdrawal.",
+          "isMandatory": true,
+          "testMethod": "Pneumatic endurance test rig operating at 30 strokes/minute for 10,000 cycles",
+          "acceptableLimit": "Zero mechanical jamming; shutter closes completely upon withdrawal"
+        },
+        {
+          "id": "cl-1293-5",
+          "clauseNumber": "Clause 20.3",
+          "title": "Glow-Wire Flammability Resistance",
+          "description": "Resistance of insulating material retaining current-carrying parts to abnormal heat and fire.",
+          "isMandatory": true,
+          "testMethod": "Glow-wire test at 850°C",
+          "acceptableLimit": "No sustained flame or self-extinction within 30 seconds"
+        }
+      ]
+    },
+    {
+      "id": "std-3854",
+      "standardNumber": "IS 3854:1997",
+      "title": "Switches for Domestic and Similar Purposes",
+      "description": "Safety and performance requirements for manually operated general purpose switches for AC installations up to 250V and rated current up to 32A.",
+      "productCategory": "Electrotechnical (ETD) - Wiring Accessories",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "switch",
+        "domestic",
+        "modular",
+        "contact",
+        "breaking capacity",
+        "endurance"
+      ],
+      "lastUpdated": "2024-03-10T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-3854-1",
+          "clauseNumber": "Clause 14.1",
+          "title": "Making and Breaking Capacity Under Rated Load",
+          "description": "Switch ability to safely make and break load circuits with power factor 0.6.",
+          "isMandatory": true,
+          "testMethod": "200 operations at 1.1 times rated voltage and 1.25 times rated current",
+          "acceptableLimit": "Zero sustained arcing, welding of contacts, or enclosure rupture"
+        },
+        {
+          "id": "cl-3854-2",
+          "clauseNumber": "Clause 15.1",
+          "title": "Normal Operation Endurance (40,000 Cycles)",
+          "description": "Mechanical and electrical contact endurance under repeated operation.",
+          "isMandatory": true,
+          "testMethod": "40,000 continuous operations at rated current and voltage (30 operations/min)",
+          "acceptableLimit": "Temperature rise <= 45 K; no electrical or mechanical failure"
+        },
+        {
+          "id": "cl-3854-3",
+          "clauseNumber": "Clause 17.2",
+          "title": "Insulation Resistance & Electric Strength",
+          "description": "Dielectric insulation across open contacts and between live parts and accessible frame.",
+          "isMandatory": true,
+          "testMethod": "2000V AC rms applied for 1 minute following 48h humidity chamber conditioning",
+          "acceptableLimit": "Zero flashover; insulation resistance >= 5.0 MΩ"
+        }
+      ]
+    },
+    {
+      "id": "std-8828",
+      "standardNumber": "IS/IEC 60898-1:2002 (IS 8828)",
+      "title": "Electrical Accessories - Circuit-Breakers for Overcurrent Protection (MCB)",
+      "description": "Air-break circuit-breakers for operation at 50 Hz, with rated voltage not exceeding 440 V and rated current not exceeding 125 A.",
+      "productCategory": "Electrotechnical (ETD) - Switchgear & Protection",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "mcb",
+        "circuit breaker",
+        "short circuit",
+        "overload",
+        "thermal trip",
+        "magnetic trip"
+      ],
+      "lastUpdated": "2024-04-12T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-8828-1",
+          "clauseNumber": "Clause 8.6",
+          "title": "Tripping Characteristics (Type B / C / D Curves)",
+          "description": "Verification of thermal bi-metallic overload and electromagnetic instantaneous trip thresholds.",
+          "isMandatory": true,
+          "testMethod": "Calibrated current injection at 1.13 In (non-tripping) and 1.45 In (conventional tripping current)",
+          "acceptableLimit": "Tripping time between 0.1s and 5.0s at specified threshold curve"
+        },
+        {
+          "id": "cl-8828-2",
+          "clauseNumber": "Clause 9.12",
+          "title": "Rated Short-Circuit Capacity (Icn = 10 kA)",
+          "description": "Breaking and extinguishing high fault current without fire or external hazard.",
+          "isMandatory": true,
+          "testMethod": "10 kA short circuit test sequence O - t - CO at rated operating voltage",
+          "acceptableLimit": "Safe arc chute containment; dielectric strength retained >= 1500V post-fault"
+        },
+        {
+          "id": "cl-8828-3",
+          "clauseNumber": "Clause 9.8",
+          "title": "Temperature Rise of Terminals Under In Load",
+          "description": "Operating terminal temperature under continuous rated current In.",
+          "isMandatory": true,
+          "testMethod": "Continuous rated current injection until thermal equilibrium is attained",
+          "acceptableLimit": "Terminal temperature rise <= 60 K"
+        }
+      ]
+    },
+    {
+      "id": "std-302-1",
+      "standardNumber": "IS 302-1:2008",
+      "title": "Safety of Household and Similar Electrical Appliances - General Requirements",
+      "description": "Governs electrical, mechanical, thermal, fire, and radiation hazards of household electrical appliances under normal and abnormal conditions.",
+      "productCategory": "Electrotechnical (ETD) - Appliances",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "appliance",
+        "safety",
+        "electric shock",
+        "leakage current",
+        "earthing",
+        "creeping distance"
+      ],
+      "lastUpdated": "2024-01-20T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-302-1",
+          "clauseNumber": "Clause 8.1",
+          "title": "Protection Against Access to Live Parts",
+          "description": "Enclosure protection preventing fingers or tools from touching hazardous live electrical components.",
+          "isMandatory": true,
+          "testMethod": "Standard jointed test finger (IEC 61032 probe B) applied with 20 N force in all directions",
+          "acceptableLimit": "Zero contact with uninsulated live circuits"
+        },
+        {
+          "id": "cl-302-2",
+          "clauseNumber": "Clause 13.2",
+          "title": "Leakage Current and Electric Strength at Operating Temperature",
+          "description": "Measurement of leakage current to accessible conductive parts during peak thermal state.",
+          "isMandatory": true,
+          "testMethod": "Continuous 1.15 times rated power input until steady thermal state; measurement with milli-ammeter",
+          "acceptableLimit": "Leakage current <= 0.75 mA for Class I portable appliances"
+        },
+        {
+          "id": "cl-302-3",
+          "clauseNumber": "Clause 27.1",
+          "title": "Provision for Earthing (Grounding Continuity)",
+          "description": "Low-resistance path between accessible metal parts and ground pin.",
+          "isMandatory": true,
+          "testMethod": "25A current injection from 12V supply between earth terminal and exposed metal for 1 minute",
+          "acceptableLimit": "Earthing circuit resistance <= 0.10 Ohm"
+        }
+      ]
+    },
+    {
+      "id": "std-2082",
+      "standardNumber": "IS 2082:2018",
+      "title": "Stationary Storage Type Electric Water Heaters (Geysers)",
+      "description": "Specifies constructional, electrical, hydrostatic pressure resistance, and standing heat loss energy efficiency for domestic water heaters.",
+      "productCategory": "Electrotechnical (ETD) - Appliances",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "geyser",
+        "water heater",
+        "pressure",
+        "hydrostatic",
+        "standing loss",
+        "thermostat"
+      ],
+      "lastUpdated": "2024-03-05T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-2082-1",
+          "clauseNumber": "Clause 7.2",
+          "title": "Hydrostatic Pressure Test of Tank (1.5x Rated Pressure)",
+          "description": "Inner stainless steel or enamel-coated tank pressure containment under high water mains pressure.",
+          "isMandatory": true,
+          "testMethod": "Hydraulic pressure held at 1.2 MPa (12 bar) for 15 minutes",
+          "acceptableLimit": "Zero water leakage, permanent tank deformation, or rupture"
+        },
+        {
+          "id": "cl-2082-2",
+          "clauseNumber": "Clause 12.1",
+          "title": "Standing Heat Loss per 24 Hours (BEE 5-Star Benchmark)",
+          "description": "Thermal insulation efficiency of polyurethane foam (PUF) insulation around hot water reservoir.",
+          "isMandatory": true,
+          "testMethod": "48 hour energy measurement in thermostatic chamber maintained at 20°C +/- 1°C",
+          "acceptableLimit": "Standing loss <= 0.380 kWh / 24h / 45K temperature difference"
+        },
+        {
+          "id": "cl-2082-3",
+          "clauseNumber": "Clause 19.3",
+          "title": "Thermal Cut-Out & Safety Relief Valve Operation",
+          "description": "Independent secondary safety cut-out that trips in case of thermostat stuck-on failure.",
+          "isMandatory": true,
+          "testMethod": "Simulated thermostat bypass dry-run heating test",
+          "acceptableLimit": "Non-self-resetting cut-out trips cleanly between 90°C and 95°C; safety valve releases at 0.8 MPa"
+        }
+      ]
+    },
+    {
+      "id": "std-16046",
+      "standardNumber": "IS 16046 (Part 2):2018",
+      "title": "Secondary Cells and Batteries containing Alkaline or other non-acid Electrolytes - Lithium Systems",
+      "description": "Mandatory safety requirements for portable sealed secondary lithium cells and batteries used in smartphones, laptops, power tools, and EV modules.",
+      "productCategory": "Electronics & IT (CRS) - Energy Storage",
+      "isMandatory": true,
+      "schemeType": "CRS (Compulsory Registration)",
+      "status": "Active",
+      "keywords": [
+        "battery",
+        "lithium",
+        "cell",
+        "li-ion",
+        "pack",
+        "portable",
+        "overcharge",
+        "crs"
+      ],
+      "lastUpdated": "2024-03-01T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-16046-1",
+          "clauseNumber": "Clause 7.2.1",
+          "title": "Continuous Charging at Constant Voltage",
+          "description": "Fully charged cells are subjected to continuous charge for 7 days at max rated voltage.",
+          "isMandatory": true,
+          "testMethod": "Constant 4.25V per cell charge at 20°C for 168 hours",
+          "acceptableLimit": "No fire, no explosion, no electrolyte leakage"
+        },
+        {
+          "id": "cl-16046-2",
+          "clauseNumber": "Clause 7.3.2",
+          "title": "External Short Circuit at Elevated Temperature (55°C)",
+          "description": "Fully charged battery pack short-circuited with external resistance < 80 mΩ at elevated ambient temperature.",
+          "isMandatory": true,
+          "testMethod": "Direct copper shunt application in thermal chamber at 55°C",
+          "acceptableLimit": "Case temp <= 150°C; zero fire or explosive disassembly"
+        },
+        {
+          "id": "cl-16046-3",
+          "clauseNumber": "Clause 7.3.3",
+          "title": "Free Fall Drop Impact Test",
+          "description": "Enclosure impact integrity when dropped onto flat concrete floor from 1.0m height.",
+          "isMandatory": true,
+          "testMethod": "1.0m drop test on each face onto concrete floor (total 3 drops)",
+          "acceptableLimit": "No fire, no explosion, enclosure intact, no internal short circuit"
+        },
+        {
+          "id": "cl-16046-4",
+          "clauseNumber": "Clause 7.3.4",
+          "title": "Thermal Abuse & Oven Resistance (130°C)",
+          "description": "Resistance of cell separator to thermal shrinkage and catastrophic thermal runaway in elevated temperature oven.",
+          "isMandatory": true,
+          "testMethod": "Thermal chamber ramped at 5°C/min to 130°C +/- 2°C, held for 10 minutes",
+          "acceptableLimit": "Zero ignition, persistent fire, or explosive disassembly"
+        },
+        {
+          "id": "cl-16046-5",
+          "clauseNumber": "Clause 7.3.6",
+          "title": "Mechanical Crush Test",
+          "description": "Mechanical deformation resistance under heavy hydraulic bar press simulating road crash or vehicle crush.",
+          "isMandatory": true,
+          "testMethod": "Hydraulic piston crush up to 13.0 kN force between flat jaws",
+          "acceptableLimit": "No explosion, thermal runaway ignition, or persistent flame"
+        }
+      ]
+    },
+    {
+      "id": "std-13252",
+      "standardNumber": "IS 13252 (Part 1):2010",
+      "title": "Information Technology Equipment - Safety - General Requirements",
+      "description": "Comprehensive safety standard for laptops, desktop computers, mobile phones, power adapters, printers, scanners, and servers.",
+      "productCategory": "Electronics & IT (CRS) - Computing & Telecom",
+      "isMandatory": true,
+      "schemeType": "CRS (Compulsory Registration)",
+      "status": "Active",
+      "keywords": [
+        "it",
+        "laptop",
+        "mobile",
+        "charger",
+        "adapter",
+        "power supply",
+        "server",
+        "telecom"
+      ],
+      "lastUpdated": "2024-02-28T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-13252-1",
+          "clauseNumber": "Clause 2.1.1",
+          "title": "Protection Against Electric Shock from Accessible Enclosures",
+          "description": "No accessible metal or plastic parts may become energized at SELV / hazardous primary voltage.",
+          "isMandatory": true,
+          "testMethod": "Standard test probe with 30 N force; touch voltage measurement across secondary circuit",
+          "acceptableLimit": "Accessible secondary voltage <= 42.4 V peak (or 60 V DC)"
+        },
+        {
+          "id": "cl-13252-2",
+          "clauseNumber": "Clause 2.9.2",
+          "title": "Insulation Resistance & Electric Strength (Hi-Pot Test)",
+          "description": "High potential dielectric isolation between primary live input and output DC connector.",
+          "isMandatory": true,
+          "testMethod": "3000 V AC rms applied between primary AC prongs and secondary USB/DC port for 60 seconds",
+          "acceptableLimit": "Insulation resistance >= 7.0 MΩ; zero insulation breakdown or flashover"
+        },
+        {
+          "id": "cl-13252-3",
+          "clauseNumber": "Clause 4.5.1",
+          "title": "Thermal Heating Under Full Processing Load",
+          "description": "Maximum surface temperatures of power supply brick and external enclosure touchpoints.",
+          "isMandatory": true,
+          "testMethod": "Full rated load burn-in for 4 hours at 25°C ambient temperature",
+          "acceptableLimit": "External touchable plastic enclosure <= 75°C; internal transformer winding <= 110°C"
+        },
+        {
+          "id": "cl-13252-4",
+          "clauseNumber": "Clause 5.3",
+          "title": "Abnormal Operating and Fault Conditions",
+          "description": "Simulated short-circuit of bridge rectifier, output electrolytic capacitors, and optocoupler.",
+          "isMandatory": true,
+          "testMethod": "Direct shorting of key discrete components one at a time for 2 hours",
+          "acceptableLimit": "Internal fuse trips safely; zero flame, molten metal projection, or toxic smoke"
+        }
+      ]
+    },
+    {
+      "id": "std-15885",
+      "standardNumber": "IS 15885 (Part 2/Sec 13):2012",
+      "title": "Safety of Lamp Controlgear - Electronic Controlgear for LED Modules",
+      "description": "Safety guidelines for D.C. or A.C. supplied electronic controlgear (LED drivers, constant voltage/current power supplies) used in luminaires.",
+      "productCategory": "Electronics & IT (CRS) - Lighting Controlgear",
+      "isMandatory": true,
+      "schemeType": "CRS (Compulsory Registration)",
+      "status": "Active",
+      "keywords": [
+        "led",
+        "driver",
+        "controlgear",
+        "lamp",
+        "power",
+        "luminaire",
+        "lighting"
+      ],
+      "lastUpdated": "2024-02-10T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-15885-1",
+          "clauseNumber": "Clause 4.1",
+          "title": "Protection Against Electric Shock",
+          "description": "Accessible parts of the LED driver must have adequate insulation from primary live circuits.",
+          "isMandatory": true,
+          "testMethod": "Standard test finger inspection at 20 N force",
+          "acceptableLimit": "No electrical contact with SELV/hazardous live parts"
+        },
+        {
+          "id": "cl-15885-2",
+          "clauseNumber": "Clause 7.2",
+          "title": "Moisture Resistance & Insulation Resistance",
+          "description": "Withstand 48 hours in humidity chamber (91-95% RH) followed by 500V DC megger test.",
+          "isMandatory": true,
+          "testMethod": "Humidity chamber at 25°C followed by 500V DC insulation test",
+          "acceptableLimit": "Insulation resistance >= 4.0 MΩ"
+        },
+        {
+          "id": "cl-15885-3",
+          "clauseNumber": "Clause 14.1",
+          "title": "Fault Condition Testing (Output Short Circuit)",
+          "description": "Driver must safely handle output short circuits and transformer primary failures without fire or smoke.",
+          "isMandatory": true,
+          "testMethod": "Output terminal direct short-circuit for 4 hours continuous",
+          "acceptableLimit": "No emission of flames, molten material, or toxic gas"
+        }
+      ]
+    },
+    {
+      "id": "std-16221",
+      "standardNumber": "IS 16221 (Part 2):2015",
+      "title": "Safety of Power Converters for use in Photovoltaic Power Systems - Particular Requirements for Inverters",
+      "description": "Grid-tied and off-grid solar rooftop and utility PV inverters safety, anti-islanding, DC injection, and insulation protection.",
+      "productCategory": "Electronics & IT (CRS) - Solar Power",
+      "isMandatory": true,
+      "schemeType": "CRS (Compulsory Registration)",
+      "status": "Active",
+      "keywords": [
+        "solar",
+        "inverter",
+        "pv",
+        "photovoltaic",
+        "grid-tied",
+        "anti-islanding",
+        "efficiency"
+      ],
+      "lastUpdated": "2024-03-22T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-16221-1",
+          "clauseNumber": "Clause 5.3",
+          "title": "Anti-Islanding Protection Disconnect Time",
+          "description": "Automatic instantaneous disconnection of solar inverter upon loss of main utility grid supply.",
+          "isMandatory": true,
+          "testMethod": "AC breaker trip simulation with resonant R-L-C load matched to inverter output",
+          "acceptableLimit": "Disconnection within <= 2.0 seconds; zero voltage backfeed to utility lines"
+        },
+        {
+          "id": "cl-16221-2",
+          "clauseNumber": "Clause 7.1",
+          "title": "DC Current Injection into AC Grid",
+          "description": "Restriction on harmful direct current flowing from solar PV array into distribution grid.",
+          "isMandatory": true,
+          "testMethod": "Precision DC shunt hall-effect measurement at 100% inverter rated output power",
+          "acceptableLimit": "DC current injection <= 0.5% of rated output current"
+        },
+        {
+          "id": "cl-16221-3",
+          "clauseNumber": "Clause 8.4",
+          "title": "Ingress Protection & Thermal Runaway in Outdoor Enclosure",
+          "description": "IP65 weatherproof enclosure testing against dust penetration and high-pressure water jets.",
+          "isMandatory": true,
+          "testMethod": "Talcum dust chamber (8 hours) followed by 12.5 mm water jet at 100 kPa for 3 minutes",
+          "acceptableLimit": "Conforms to IP65; zero water or conductive dust ingress"
+        }
+      ]
+    },
+    {
+      "id": "std-1786",
+      "standardNumber": "IS 1786:2008",
+      "title": "High Strength Deformed Steel Bars and Wires for Concrete Reinforcement (TMT Rebars)",
+      "description": "Mandatory mechanical, chemical, and bend characteristics of thermo-mechanically treated (TMT) steel rebars (Fe 500, Fe 500D, Fe 550D) for infrastructure.",
+      "productCategory": "Civil Engineering (CED) - Steel & Metallurgy",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "steel",
+        "tmt",
+        "rebar",
+        "concrete",
+        "tensile",
+        "yield strength",
+        "elongation",
+        "fe500"
+      ],
+      "lastUpdated": "2024-04-10T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-1786-1",
+          "clauseNumber": "Clause 8.1",
+          "title": "Yield Stress / 0.2% Proof Stress (Fe 500D Grade)",
+          "description": "Minimum 0.2% proof stress / yield strength for ductile earthquake-resistant construction.",
+          "isMandatory": true,
+          "testMethod": "Universal Testing Machine (UTM) tensile test according to IS 1608",
+          "acceptableLimit": "Minimum 500.0 N/mm² (MPa)"
+        },
+        {
+          "id": "cl-1786-2",
+          "clauseNumber": "Clause 8.2",
+          "title": "Tensile Strength to Yield Ratio (TS / YS Ratio)",
+          "description": "Ratio of ultimate tensile strength to yield stress ensuring structural seismic plastic reserve.",
+          "isMandatory": true,
+          "testMethod": "Calculated from ultimate tensile load and proof stress measurement",
+          "acceptableLimit": "TS / YS ratio >= 1.10; Ultimate Tensile Strength >= 565.0 N/mm²"
+        },
+        {
+          "id": "cl-1786-3",
+          "clauseNumber": "Clause 8.3",
+          "title": "Percentage Elongation at Gauge Length 5.65√So",
+          "description": "Ductility under tension to prevent brittle fracture during earthquakes or severe load shifts.",
+          "isMandatory": true,
+          "testMethod": "Extensometer gauge measurement after fracture under UTM",
+          "acceptableLimit": "Elongation >= 16.0%"
+        },
+        {
+          "id": "cl-1786-4",
+          "clauseNumber": "Clause 4.2",
+          "title": "Chemical Composition - Carbon & Sulphur/Phosphorus Limits",
+          "description": "Chemical purity and weldability restriction on harmful embrittling elements.",
+          "isMandatory": true,
+          "testMethod": "Optical Emission Spectrometry (OES) analysis of ladle sample",
+          "acceptableLimit": "Carbon <= 0.25%; Sulphur <= 0.040%; Phosphorus <= 0.040%; S+P <= 0.075%"
+        }
+      ]
+    },
+    {
+      "id": "std-269",
+      "standardNumber": "IS 269:2015",
+      "title": "Ordinary Portland Cement - Specification (33, 43 and 53 Grade)",
+      "description": "Statutory physical and chemical requirements for Ordinary Portland Cement used in structural concrete, pre-stressed members, and heavy construction.",
+      "productCategory": "Civil Engineering (CED) - Cement & Concrete",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "cement",
+        "portland",
+        "opc",
+        "compressive strength",
+        "setting time",
+        "fineness",
+        "soundness"
+      ],
+      "lastUpdated": "2024-03-15T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-269-1",
+          "clauseNumber": "Clause 6.1",
+          "title": "28-Day Compressive Strength (53 Grade OPC)",
+          "description": "Compressive strength of mortar cubes made from standard Ennore sand after 28 days curing.",
+          "isMandatory": true,
+          "testMethod": "Compressive testing machine load on 70.6 mm mortar cubes (IS 4031 Part 6)",
+          "acceptableLimit": "Minimum 53.0 MPa (N/mm²)"
+        },
+        {
+          "id": "cl-269-2",
+          "clauseNumber": "Clause 6.2",
+          "title": "Initial & Final Setting Time",
+          "description": "Workability window for pouring concrete and rate of hydration hardening.",
+          "isMandatory": true,
+          "testMethod": "Vicat needle apparatus test at standard consistency paste (IS 4031 Part 5)",
+          "acceptableLimit": "Initial setting time >= 30 minutes; Final setting time <= 600 minutes"
+        },
+        {
+          "id": "cl-269-3",
+          "clauseNumber": "Clause 6.3",
+          "title": "Soundness by Le-Chatelier Method",
+          "description": "Expansion resistance of unhydrated free lime and magnesia preventing concrete cracking.",
+          "isMandatory": true,
+          "testMethod": "Boiling Le-Chatelier split cylinder gauge in water bath for 3 hours (IS 4031 Part 3)",
+          "acceptableLimit": "Expansion <= 10.0 mm"
+        },
+        {
+          "id": "cl-269-4",
+          "clauseNumber": "Clause 5.1",
+          "title": "Chemical Limits - Insoluble Residue & Magnesia (MgO)",
+          "description": "Purity of clinker minerals and control of unreacted silica/alumina contaminants.",
+          "isMandatory": true,
+          "testMethod": "Wet chemical gravimetric analysis (IS 4032)",
+          "acceptableLimit": "Insoluble residue <= 5.0%; Magnesia (MgO) <= 6.0%; Loss on Ignition <= 5.0%"
+        }
+      ]
+    },
+    {
+      "id": "std-4984",
+      "standardNumber": "IS 4984:2016",
+      "title": "High Density Polyethylene Pipes for Water Supply - Specification",
+      "description": "Virgin polymer HDPE pipes for municipal potable water supply, high-pressure distribution, and sewer main conduits.",
+      "productCategory": "Civil Engineering (CED) - Pipes & Plastics",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "hdpe",
+        "pipe",
+        "water supply",
+        "hydrostatic",
+        "carbon black",
+        "pe100",
+        "polymer"
+      ],
+      "lastUpdated": "2024-02-18T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-4984-1",
+          "clauseNumber": "Clause 8.1",
+          "title": "Hydrostatic Internal Pressure Resistance (100h at 20°C)",
+          "description": "Pipe bursting resistance under continuous hydraulic hoop stress for PE 100 grade resin.",
+          "isMandatory": true,
+          "testMethod": "End-capped water bath pressurization at 12.4 MPa induced circumferential stress",
+          "acceptableLimit": "Zero weeping, pinhole leakage, bursting, or swelling after 100 hours"
+        },
+        {
+          "id": "cl-4984-2",
+          "clauseNumber": "Clause 8.2",
+          "title": "Oxidation Induction Time (OIT at 200°C)",
+          "description": "Thermal antioxidant stabilizer content guaranteeing 50-year service life.",
+          "isMandatory": true,
+          "testMethod": "Differential Scanning Calorimetry (DSC) oxygen purge test at 200°C",
+          "acceptableLimit": "OIT >= 20 minutes"
+        },
+        {
+          "id": "cl-4984-3",
+          "clauseNumber": "Clause 5.3",
+          "title": "Carbon Black Content & Dispersion Grade",
+          "description": "Ultraviolet (UV) degradation resistance through micro-dispersed carbon black.",
+          "isMandatory": true,
+          "testMethod": "Thermogravimetric nitrogen furnace pyrolysis and optical microscopy (IS 2530)",
+          "acceptableLimit": "Carbon black content 2.0% to 2.5%; Dispersion grading <= Grade 3"
+        }
+      ]
+    },
+    {
+      "id": "std-14543",
+      "standardNumber": "IS 14543:2004",
+      "title": "Packaged Drinking Water (Other Than Packaged Natural Mineral Water)",
+      "description": "Statutory chemical, microbiological, radiological, and physical requirements for commercial bottled drinking water.",
+      "productCategory": "Food & Water (FAD) - Potable Water",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "water",
+        "packaged",
+        "bottled",
+        "tds",
+        "microbial",
+        "coliform",
+        "arsenic",
+        "lead"
+      ],
+      "lastUpdated": "2024-01-25T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-14543-1",
+          "clauseNumber": "Clause 3.2 (Table 2)",
+          "title": "Total Dissolved Solids (TDS) & pH Value",
+          "description": "General chemical potability parameters and mineral balance.",
+          "isMandatory": true,
+          "testMethod": "Gravimetric dried residue test at 180°C and calibrated glass electrode pH meter",
+          "acceptableLimit": "TDS: 75 to 500 mg/L (ppm); pH: 6.5 to 8.5"
+        },
+        {
+          "id": "cl-14543-2",
+          "clauseNumber": "Clause 3.3 (Table 3)",
+          "title": "Toxic Heavy Metals - Lead (Pb) and Arsenic (As)",
+          "description": "Maximum allowable thresholds for toxic heavy metals harmful to human health.",
+          "isMandatory": true,
+          "testMethod": "Inductively Coupled Plasma Mass Spectrometry (ICP-MS) or Atomic Absorption (AAS)",
+          "acceptableLimit": "Lead (Pb) <= 0.01 mg/L; Arsenic (As) <= 0.01 mg/L; Cadmium <= 0.003 mg/L"
+        },
+        {
+          "id": "cl-14543-3",
+          "clauseNumber": "Clause 4.1 (Table 4)",
+          "title": "Microbiological Safety - Coliform & E. coli Count",
+          "description": "Zero tolerance for waterborne biological and faecal pathogens.",
+          "isMandatory": true,
+          "testMethod": "Membrane filtration method using M-Endo agar incubated at 37°C for 24h",
+          "acceptableLimit": "Zero (Absent) in 250 ml of sample; Faecal Streptococci: Absent in 250 ml"
+        },
+        {
+          "id": "cl-14543-4",
+          "clauseNumber": "Clause 3.4",
+          "title": "Pesticide Residue Limits (Individual & Total)",
+          "description": "Trace pesticide residue limits following multi-barrier RO/UV filtration.",
+          "isMandatory": true,
+          "testMethod": "Gas Chromatography Mass Spectrometry (GC-MS/MS) multi-residue pesticide screen",
+          "acceptableLimit": "Individual pesticide <= 0.0001 mg/L (0.1 ppb); Total pesticides <= 0.0005 mg/L"
+        }
+      ]
+    },
+    {
+      "id": "std-4151",
+      "standardNumber": "IS 4151:2015",
+      "title": "Protective Helmets for Two Wheeler Riders - Specification",
+      "description": "Mandatory safety parameters for protective helmets ensuring skull impact absorption, chin strap retention, and optical visor clarity.",
+      "productCategory": "Consumer Safety (TED) - Protective Equipment",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "helmet",
+        "two wheeler",
+        "impact",
+        "visor",
+        "chin strap",
+        "retention",
+        "headform"
+      ],
+      "lastUpdated": "2024-03-08T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-4151-1",
+          "clauseNumber": "Clause 9.1",
+          "title": "Impact Absorption & Shock Deceleration Test",
+          "description": "Headform peak deceleration attenuation when dropped onto flat steel and hemispherical anvils.",
+          "isMandatory": true,
+          "testMethod": "Drop tower release from 2.85 m height (impact velocity 7.5 m/s) with triaxial accelerometer headform",
+          "acceptableLimit": "Peak headform deceleration <= 275 g (gravity); Deceleration > 150 g duration <= 5.0 ms"
+        },
+        {
+          "id": "cl-4151-2",
+          "clauseNumber": "Clause 9.2",
+          "title": "Retention System (Chin Strap) Dynamic Extension & Slippage",
+          "description": "Chin strap buckle security preventing helmet detachment during road ejection.",
+          "isMandatory": true,
+          "testMethod": "Initial pre-load of 50 N followed by instantaneous 1.0 kN dynamic drop shock load",
+          "acceptableLimit": "Dynamic extension <= 35 mm; Residual slippage <= 25 mm; Buckle remains locked"
+        },
+        {
+          "id": "cl-4151-3",
+          "clauseNumber": "Clause 9.4",
+          "title": "Visor Optical Transmission & Mechanical Penetration",
+          "description": "Polycarbonate visor visual transparency and flying gravel shatter resistance.",
+          "isMandatory": true,
+          "testMethod": "Light spectrophotometer transmission test and 6 mm steel ball shot at 60 m/s",
+          "acceptableLimit": "Luminous transmittance >= 85%; Zero shatter, piercing, or sharp shard formation"
+        }
+      ]
+    },
+    {
+      "id": "std-9873",
+      "standardNumber": "IS 9873 (Part 1):2019",
+      "title": "Safety of Toys - Mechanical and Physical Properties",
+      "description": "Quality Control Order (QCO) safety standards for infant and children's toys preventing choking, sharp edges, and pinch hazards.",
+      "productCategory": "Consumer Safety - Toys",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "toy",
+        "children",
+        "small parts",
+        "choking",
+        "sharp edge",
+        "drop test",
+        "safety"
+      ],
+      "lastUpdated": "2024-02-05T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-9873-1",
+          "clauseNumber": "Clause 4.4",
+          "title": "Small Parts Ingestion & Choking Hazard Cylinder",
+          "description": "Parts intended for children under 36 months must not fit inside truncated child throat test cylinder.",
+          "isMandatory": true,
+          "testMethod": "Standard truncated test cylinder inspection (31.7 mm diameter x 57.1 mm depth)",
+          "acceptableLimit": "No detachable component or broken fragment fits entirely within cylinder"
+        },
+        {
+          "id": "cl-9873-2",
+          "clauseNumber": "Clause 4.7",
+          "title": "Sharp Points and Cutting Edges",
+          "description": "Enclosures, stampings, and metallic edges must be deburred or hemmed to prevent skin laceration.",
+          "isMandatory": true,
+          "testMethod": "Calibrated sharp edge tester mandrel with PTFE tape and sharp point gauge (1.0 mm travel)",
+          "acceptableLimit": "Zero accessible sharp edges or puncturing points"
+        },
+        {
+          "id": "cl-9873-3",
+          "clauseNumber": "Clause 8.3",
+          "title": "Abuse Drop Impact & Torque/Tension Endurance",
+          "description": "Withstand dropping 5 times from 850 mm height onto steel plate and 60 N pull tension on limbs.",
+          "isMandatory": true,
+          "testMethod": "5 successive drop tests followed by 60 N tensile pull on joints/eyes for 10 seconds",
+          "acceptableLimit": "No accessible hazard created; seams, eyes, and batteries remain locked"
+        }
+      ]
+    },
+    {
+      "id": "std-15298",
+      "standardNumber": "IS 15298 (Part 2):2016",
+      "title": "Personal Protective Equipment - Safety Footwear (Industrial Steel Toe Boots)",
+      "description": "Mandatory footwear safety specification specifying 200 Joules toe cap impact resistance, sole puncture resistance, and anti-slip grip.",
+      "productCategory": "Consumer Safety - Personal Protective Equipment",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "safety shoes",
+        "steel toe",
+        "boots",
+        "impact",
+        "puncture",
+        "sole",
+        "ppe"
+      ],
+      "lastUpdated": "2024-03-12T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-15298-1",
+          "clauseNumber": "Clause 5.3.2.2",
+          "title": "Toe Cap Impact Resistance (200 Joules Kinetic Energy)",
+          "description": "Steel/composite safety toe cap protection when subjected to heavy falling objects.",
+          "isMandatory": true,
+          "testMethod": "20 kg striker dropped from 1.02 m height imparting exactly 200 Joules impact energy",
+          "acceptableLimit": "Clearance beneath toe cap >= 14.0 mm for size 8 boot; zero toe cap cracking"
+        },
+        {
+          "id": "cl-15298-2",
+          "clauseNumber": "Clause 5.8.1",
+          "title": "Sole Penetration Resistance (1100 N Nail Puncture)",
+          "description": "Resistance of midsole to penetration by sharp nails, scrap metal, or building debris.",
+          "isMandatory": true,
+          "testMethod": "Steel test nail (4.5 mm diameter) pressed into sole unit at 10 mm/min until penetration occurs",
+          "acceptableLimit": "Penetration force >= 1100 N before tip pierces internal insole"
+        },
+        {
+          "id": "cl-15298-3",
+          "clauseNumber": "Clause 5.3.4",
+          "title": "Upper Leather Tear Strength & Water Resistance",
+          "description": "Durability of full-grain buffalo/cow leather upper under abrasive industrial exposure.",
+          "isMandatory": true,
+          "testMethod": "Tensile clamp tear test at 100 mm/min (IS 15298-1)",
+          "acceptableLimit": "Tear strength >= 120 N; Water penetration time >= 60 minutes"
+        }
+      ]
+    },
+    {
+      "id": "std-2347",
+      "standardNumber": "IS 2347:2017",
+      "title": "Domestic Pressure Cookers - Safety and Performance",
+      "description": "Quality Control Order mandatory standard specifying aluminium and stainless steel cooker burst resistance, fusible plug safety, and vent pipe clearance.",
+      "productCategory": "Mechanical (MED) - Kitchen & Consumer Utensils",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "pressure cooker",
+        "cooker",
+        "safety valve",
+        "burst pressure",
+        "fusible plug",
+        "gasket"
+      ],
+      "lastUpdated": "2024-02-14T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-2347-1",
+          "clauseNumber": "Clause 8.2",
+          "title": "Proof Pressure & Hydrostatic Burst Test",
+          "description": "Pressure containment of cooker body and lid locking mechanism without explosive rupture.",
+          "isMandatory": true,
+          "testMethod": "Hydraulic pressurization with weight valve locked to twice working operating pressure",
+          "acceptableLimit": "Withstand 200 kPa (2.0 bar) proof pressure for 5 min; Burst pressure >= 300 kPa"
+        },
+        {
+          "id": "cl-2347-2",
+          "clauseNumber": "Clause 8.4",
+          "title": "Fusible Safety Relief Plug Release Temperature",
+          "description": "Secondary safety valve operating when main vent weight pipe is completely blocked.",
+          "isMandatory": true,
+          "testMethod": "Dry heat cooker test on flame with vent weight obstructed",
+          "acceptableLimit": "Fusible alloy melts and releases steam safely between 110°C and 130°C"
+        },
+        {
+          "id": "cl-2347-3",
+          "clauseNumber": "Clause 8.7",
+          "title": "Gasket Release System (GRS) Pressure Relief",
+          "description": "Controlled lid gasket deflection to vent excess pressure before vessel structural rupture.",
+          "isMandatory": true,
+          "testMethod": "Vent and safety valve blocked with progressive hydraulic pressure ramp",
+          "acceptableLimit": "Gasket vents pressure safely between 180 kPa and 240 kPa"
+        }
+      ]
+    },
+    {
+      "id": "std-17855",
+      "standardNumber": "IS 17855:2022",
+      "title": "Electric Vehicle (EV) Safety Requirements - Rechargeable Electrical Energy Storage System (REESS)",
+      "description": "Mandatory AIS/BIS automotive safety requirements for traction battery packs against thermal runaway propagation, fire, and immersion.",
+      "productCategory": "Automotive & EV (TED) - Energy Storage",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "ev",
+        "electric vehicle",
+        "reess",
+        "battery pack",
+        "thermal runaway",
+        "automotive",
+        "immersion"
+      ],
+      "lastUpdated": "2024-03-30T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-17855-1",
+          "clauseNumber": "Clause 6.1",
+          "title": "Single Cell Thermal Runaway Initiation & Propagation",
+          "description": "Triggering a thermal runaway in a single cell must not propagate to adjacent cells in the pack for at least 10 minutes.",
+          "isMandatory": true,
+          "testMethod": "Ceramic cartridge heater trigger at 100°C/min inside sealed battery pack",
+          "acceptableLimit": "No fire, explosion, or smoke venting into passenger cabin for min 10 minutes"
+        },
+        {
+          "id": "cl-17855-2",
+          "clauseNumber": "Clause 8.4",
+          "title": "Saltwater Immersion & High Pressure Water Jet Test",
+          "description": "Water ingress resistance when vehicle is flooded in monsoon waters.",
+          "isMandatory": true,
+          "testMethod": "Submersion in 3.5% NaCl solution for 2 hours followed by post-monitoring",
+          "acceptableLimit": "No fire, explosion; insulation resistance >= 100 Ohm/Volt"
+        }
+      ]
+    },
+    {
+      "id": "std-bis-9",
+      "standardNumber": "IS 9",
+      "title": "IS 9 — Official Indian Standard Specification (Electrical Equipment & Appliances)",
+      "description": "Official statutory quality, mechanical safety, electrical, and chemical performance specification established by the Bureau of Indian Standards (BIS).",
+      "productCategory": "Electrotechnical (ETD)",
+      "isMandatory": true,
+      "schemeType": "Scheme-I (ISI Mark)",
+      "status": "Active",
+      "keywords": [
+        "is 9",
+        "electrical",
+        "power",
+        "switchgear",
+        "appliances"
+      ],
+      "lastUpdated": "2024-01-01T00:00:00Z",
+      "clauses": [
+        {
+          "id": "cl-9-1",
+          "clauseNumber": "Clause 4.1",
+          "title": "Raw Material Composition & Purity Verification",
+          "description": "Material grades, chemical purity, and metallurgical or polymer formulation limits.",
+          "isMandatory": true,
+          "testMethod": "Chemical spectrochemical analysis or FTIR polymer verification",
+          "acceptableLimit": "Conforms to Table 1 chemical composition tolerances"
+        },
+        {
+          "id": "cl-9-2",
+          "clauseNumber": "Clause 7.2",
+          "title": "Mechanical Strength & Physical Performance Criteria",
+          "description": "Withstand statutory operating stress, proof load, or dimensional tolerances.",
+          "isMandatory": true,
+          "testMethod": "Universal tensile/compression or calibrated gauge inspection",
+          "acceptableLimit": "Must meet or exceed minimum specified mechanical yield/pressure threshold"
+        },
+        {
+          "id": "cl-9-3",
+          "clauseNumber": "Clause 11.3",
+          "title": "Thermal, Environmental & Endurance Testing",
+          "description": "Resistance to abnormal operating heat, environmental humidity, ingress, or flammability.",
+          "isMandatory": true,
+          "testMethod": "Conditioning in environmental test chamber followed by dielectric/functional verification",
+          "acceptableLimit": "Zero flashover, structural rupture, or dangerous thermal runaway"
+        },
+        {
+          "id": "cl-9-4",
+          "clauseNumber": "Clause 16.1",
+          "title": "Marking, Traceability & Standard Mark (ISI / CRS)",
+          "description": "Permanent indelible marking of manufacturer name, batch/lot number, and official BIS license number.",
+          "isMandatory": true,
+          "testMethod": "Rubbing test with water and petroleum spirit for 15 seconds",
+          "acceptableLimit": "Marking remains legible; contains genuine CM/L or R-number"
+        }
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "id": "com-1789168047428",
+      "standardId": "std-17855",
+      "userId": "user-mtxkgksk",
+      "userName": "Automated Test Suite",
+      "organization": "National Standards Review Cell",
+      "comment": "Test comment verifying persistence in database repository",
+      "section": "Clause 6.1",
+      "createdAt": "2026-09-11T23:07:27.428Z"
+    },
+    {
+      "id": "com-1789167169361",
+      "standardId": "std-17855",
+      "userId": "user-mtxjxr9t",
+      "userName": "Automated Test Suite",
+      "organization": "National Standards Review Cell",
+      "comment": "Test comment verifying persistence in database repository",
+      "section": "Clause 6.1",
+      "createdAt": "2026-09-11T22:52:49.361Z"
+    },
+    {
+      "id": "com-1789165936053",
+      "standardId": "std-17855",
+      "userId": "user-mtxj7bn9",
+      "userName": "Automated Test Suite",
+      "organization": "National Standards Review Cell",
+      "comment": "Test comment verifying persistence in database repository",
+      "section": "Clause 6.1",
+      "createdAt": "2026-09-11T22:32:16.053Z"
+    },
+    {
+      "id": "com-1789165214738",
+      "standardId": "std-17855",
+      "userId": "user-mtxirv2q",
+      "userName": "Automated Test Suite",
+      "organization": "National Standards Review Cell",
+      "comment": "Test comment verifying persistence in database repository",
+      "section": "Clause 6.1",
+      "createdAt": "2026-09-11T22:20:14.738Z"
+    },
+    {
+      "id": "com-1789164722288",
+      "standardId": "std-17855",
+      "userId": "user-mtxihb3k",
+      "userName": "Automated Test Suite",
+      "organization": "National Standards Review Cell",
+      "comment": "Test comment verifying persistence in database repository",
+      "section": "Clause 6.1",
+      "createdAt": "2026-09-11T22:12:02.288Z"
+    },
+    {
+      "id": "com-1789164203081",
+      "standardId": "std-17855",
+      "userId": "user-mtxi66h5",
+      "userName": "Automated Test Suite",
+      "organization": "National Standards Review Cell",
+      "comment": "Test comment verifying persistence in database repository",
+      "section": "Clause 6.1",
+      "createdAt": "2026-09-11T22:03:23.081Z"
+    },
+    {
+      "id": "com-1789163548874",
+      "standardId": "std-17855",
+      "userId": "user-mtxhs5oq",
+      "userName": "Automated Test Suite",
+      "organization": "National Standards Review Cell",
+      "comment": "Test comment verifying persistence in database repository",
+      "section": "Clause 6.1",
+      "createdAt": "2026-09-11T21:52:28.874Z"
+    },
+    {
+      "id": "com-1789163273890",
+      "standardId": "std-17855",
+      "userId": "user-mtxhm9ia",
+      "userName": "Automated Test Suite",
+      "organization": "National Standards Review Cell",
+      "comment": "Test comment verifying persistence in database repository",
+      "section": "Clause 6.1",
+      "createdAt": "2026-09-11T21:47:53.890Z"
+    },
+    {
+      "id": "com-1789162196146",
+      "standardId": "std-17855",
+      "userId": "user-mtxgz5wy",
+      "userName": "Automated Test Suite",
+      "organization": "National Standards Review Cell",
+      "comment": "Test comment verifying persistence in database repository",
+      "section": "Clause 6.1",
+      "createdAt": "2026-09-11T21:29:56.146Z"
+    },
+    {
+      "id": "com-1789162159944",
+      "standardId": "std-17855",
+      "userId": "user-mtxgydzc",
+      "userName": "Automated Test Suite",
+      "organization": "National Standards Review Cell",
+      "comment": "Test comment verifying persistence in database repository",
+      "section": "Clause 6.1",
+      "createdAt": "2026-09-11T21:29:19.944Z"
+    },
+    {
+      "id": "com-001",
+      "standardId": "std-17855",
+      "userId": "stakeholder-01",
+      "userName": "Society of Indian Automobile Manufacturers (SIAM)",
+      "organization": "SIAM Electric Mobility Committee",
+      "comment": "Recommending an extension of the compliance transition window to 18 months for Tier-2 pack assemblers to commission automated thermal runaway trigger rigs.",
+      "section": "Clause 6.1 (Thermal Runaway)",
+      "createdAt": "2026-08-18T10:30:00Z"
+    },
+    {
+      "id": "com-002",
+      "standardId": "std-17855",
+      "userId": "stakeholder-02",
+      "userName": "ARAI Battery Engineering Cell",
+      "organization": "Automotive Research Association of India",
+      "comment": "Concur with the 10-minute passenger egress window; propose harmonizing temperature sensor placement with UN ECE R100 Rev 3.",
+      "section": "Clause 6.1.4 (Sensor Placement)",
+      "createdAt": "2026-08-22T14:15:00Z"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "booking-1789168047855",
+      "ticketNumber": "TR-2026-3226",
+      "applicantName": "Aakash Mehta",
+      "companyName": "Mehta Cables Ltd",
+      "email": "aakash@mehtacables.com",
+      "phone": "+91 98112 33445",
+      "productName": "Copper Power Cable 1.5 sq mm",
+      "standardNumber": "IS 694",
+      "urgency": "express",
+      "labId": "LAB-001",
+      "labName": "National Test House (Northern Region)",
+      "status": "Pending Review",
+      "estimatedCost": "₹ 35,000",
+      "leadTime": "4-6 Days (Priority Fast-Track)",
+      "createdAt": "2026-09-11T23:07:27.855Z"
+    },
+    {
+      "id": "booking-1789167169610",
+      "ticketNumber": "TR-2026-3297",
+      "applicantName": "Aakash Mehta",
+      "companyName": "Mehta Cables Ltd",
+      "email": "aakash@mehtacables.com",
+      "phone": "+91 98112 33445",
+      "productName": "Copper Power Cable 1.5 sq mm",
+      "standardNumber": "IS 694",
+      "urgency": "express",
+      "labId": "LAB-001",
+      "labName": "National Test House (Northern Region)",
+      "status": "Pending Review",
+      "estimatedCost": "₹ 35,000",
+      "leadTime": "4-6 Days (Priority Fast-Track)",
+      "createdAt": "2026-09-11T22:52:49.610Z"
+    },
+    {
+      "id": "booking-1789165936769",
+      "ticketNumber": "TR-2026-5979",
+      "applicantName": "Aakash Mehta",
+      "companyName": "Mehta Cables Ltd",
+      "email": "aakash@mehtacables.com",
+      "phone": "+91 98112 33445",
+      "productName": "Copper Power Cable 1.5 sq mm",
+      "standardNumber": "IS 694",
+      "urgency": "express",
+      "labId": "LAB-001",
+      "labName": "National Test House (Northern Region)",
+      "status": "Pending Review",
+      "estimatedCost": "₹ 35,000",
+      "leadTime": "4-6 Days (Priority Fast-Track)",
+      "createdAt": "2026-09-11T22:32:16.772Z"
+    },
+    {
+      "id": "booking-1789165214941",
+      "ticketNumber": "TR-2026-1588",
+      "applicantName": "Aakash Mehta",
+      "companyName": "Mehta Cables Ltd",
+      "email": "aakash@mehtacables.com",
+      "phone": "+91 98112 33445",
+      "productName": "Copper Power Cable 1.5 sq mm",
+      "standardNumber": "IS 694",
+      "urgency": "express",
+      "labId": "LAB-001",
+      "labName": "National Test House (Northern Region)",
+      "status": "Pending Review",
+      "estimatedCost": "₹ 35,000",
+      "leadTime": "4-6 Days (Priority Fast-Track)",
+      "createdAt": "2026-09-11T22:20:14.945Z"
+    },
+    {
+      "id": "booking-1789164722527",
+      "ticketNumber": "TR-2026-9484",
+      "applicantName": "Aakash Mehta",
+      "companyName": "Mehta Cables Ltd",
+      "email": "aakash@mehtacables.com",
+      "phone": "+91 98112 33445",
+      "productName": "Copper Power Cable 1.5 sq mm",
+      "standardNumber": "IS 694",
+      "urgency": "express",
+      "labId": "LAB-001",
+      "labName": "National Test House (Northern Region)",
+      "status": "Pending Review",
+      "estimatedCost": "₹ 35,000",
+      "leadTime": "4-6 Days (Priority Fast-Track)",
+      "createdAt": "2026-09-11T22:12:02.530Z"
+    },
+    {
+      "id": "booking-1789164204221",
+      "ticketNumber": "TR-2026-8943",
+      "applicantName": "Aakash Mehta",
+      "companyName": "Mehta Cables Ltd",
+      "email": "aakash@mehtacables.com",
+      "phone": "+91 98112 33445",
+      "productName": "Copper Power Cable 1.5 sq mm",
+      "standardNumber": "IS 694",
+      "urgency": "express",
+      "labId": "LAB-001",
+      "labName": "National Test House (Northern Region)",
+      "status": "Pending Review",
+      "estimatedCost": "₹ 35,000",
+      "leadTime": "4-6 Days (Priority Fast-Track)",
+      "createdAt": "2026-09-11T22:03:24.229Z"
+    },
+    {
+      "id": "booking-1789163549092",
+      "ticketNumber": "TR-2026-5164",
+      "applicantName": "Aakash Mehta",
+      "companyName": "Mehta Cables Ltd",
+      "email": "aakash@mehtacables.com",
+      "phone": "+91 98112 33445",
+      "productName": "Copper Power Cable 1.5 sq mm",
+      "standardNumber": "IS 694",
+      "urgency": "express",
+      "labId": "LAB-001",
+      "labName": "National Test House (Northern Region)",
+      "status": "Pending Review",
+      "estimatedCost": "₹ 35,000",
+      "leadTime": "4-6 Days (Priority Fast-Track)",
+      "createdAt": "2026-09-11T21:52:29.095Z"
+    },
+    {
+      "id": "booking-1789163274150",
+      "ticketNumber": "TR-2026-7951",
+      "applicantName": "Aakash Mehta",
+      "companyName": "Mehta Cables Ltd",
+      "email": "aakash@mehtacables.com",
+      "phone": "+91 98112 33445",
+      "productName": "Copper Power Cable 1.5 sq mm",
+      "standardNumber": "IS 694",
+      "urgency": "express",
+      "labId": "LAB-001",
+      "labName": "National Test House (Northern Region)",
+      "status": "Pending Review",
+      "estimatedCost": "₹ 35,000",
+      "leadTime": "4-6 Days (Priority Fast-Track)",
+      "createdAt": "2026-09-11T21:47:54.167Z"
+    },
+    {
+      "id": "booking-1789162196344",
+      "ticketNumber": "TR-2026-3589",
+      "applicantName": "Aakash Mehta",
+      "companyName": "Mehta Cables Ltd",
+      "email": "aakash@mehtacables.com",
+      "phone": "+91 98112 33445",
+      "productName": "Copper Power Cable 1.5 sq mm",
+      "standardNumber": "IS 694",
+      "urgency": "express",
+      "labId": "LAB-001",
+      "labName": "National Test House (Northern Region)",
+      "status": "Pending Review",
+      "estimatedCost": "₹ 35,000",
+      "leadTime": "4-6 Days (Priority Fast-Track)",
+      "createdAt": "2026-09-11T21:29:56.344Z"
+    },
+    {
+      "id": "booking-1789162160498",
+      "ticketNumber": "TR-2026-8608",
+      "applicantName": "Aakash Mehta",
+      "companyName": "Mehta Cables Ltd",
+      "email": "aakash@mehtacables.com",
+      "phone": "+91 98112 33445",
+      "productName": "Copper Power Cable 1.5 sq mm",
+      "standardNumber": "IS 694",
+      "urgency": "express",
+      "labId": "LAB-001",
+      "labName": "National Test House (Northern Region)",
+      "status": "Pending Review",
+      "estimatedCost": "₹ 35,000",
+      "leadTime": "4-6 Days (Priority Fast-Track)",
+      "createdAt": "2026-09-11T21:29:20.585Z"
+    },
+    {
+      "id": "book-001",
+      "ticketNumber": "TR-2026-8492",
+      "applicantName": "Rajesh Kulkarni",
+      "companyName": "Havells India Ltd.",
+      "email": "rajesh.k@havells.com",
+      "phone": "+91 98230 45671",
+      "productName": "16A Heavy-Duty Shuttered Socket Mod-X",
+      "standardNumber": "IS 1293",
+      "urgency": "standard",
+      "labId": "LAB-001",
+      "labName": "National Test House (Northern Region)",
+      "status": "In-Testing",
+      "estimatedCost": "₹ 18,500",
+      "leadTime": "10-14 Days",
+      "createdAt": "2026-09-08T11:20:00Z"
+    },
+    {
+      "id": "book-002",
+      "ticketNumber": "TR-2026-5120",
+      "applicantName": "Sunil Shenoy",
+      "companyName": "Exide Energy Solutions",
+      "email": "s.shenoy@exide.in",
+      "phone": "+91 80 23419900",
+      "productName": "48V 30Ah LFP Battery Pack",
+      "standardNumber": "IS 16046 (Part 2)",
+      "urgency": "express",
+      "labId": "LAB-009",
+      "labName": "Automotive Research Association of India (ARAI)",
+      "status": "Sample Dispatched",
+      "estimatedCost": "₹ 42,000",
+      "leadTime": "6-8 Days",
+      "createdAt": "2026-09-10T14:45:00Z"
+    }
+  ],
+  "auditHistory": [
+    {
+      "id": "audit-1789229894078",
+      "tenderId": "gem-tender-01",
+      "bidNumber": "GEM/2026/B/849201",
+      "tenderTitle": "Supply of Heavy-Duty PVC Insulated Copper Power Cables (1.1 kV)",
+      "buyerName": "NTPC Limited",
+      "vendorName": "Havells India Limited",
+      "gstin": "07AAACH1234F1Z5",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 65,
+      "isMSME": false,
+      "status": "QUALIFIED",
+      "riskScore": 100,
+      "evaluatedClausesCount": 5,
+      "clausesPassedCount": 0,
+      "summary": "Havells India Limited's technical submission is fully compliant with all requested clauses of Tender GEM/2026/B/849201. The tested parameters for copper purity, electrical resistance, nominal/minimum insulation thickness, flame retardance (oxygen index), and high-voltage water immersion testing meet or exceed the specifications mandated under IS 694:2010 and IS 8130.",
+      "timestamp": "2026-09-12T16:18:14.078Z"
+    },
+    {
+      "id": "audit-1789168048139",
+      "tenderId": "gem-tender-02",
+      "bidNumber": "GEM/2026/B/912830",
+      "tenderTitle": "Combined 16A Shuttered Sockets",
+      "buyerName": "Central Public Works Department (CPWD)",
+      "vendorName": "Legrand India Electricals",
+      "gstin": "27AAACL1234F1Z0",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 65,
+      "isMSME": true,
+      "status": "QUALIFIED",
+      "riskScore": 6,
+      "evaluatedClausesCount": 4,
+      "clausesPassedCount": 4,
+      "summary": "Audit run verified through automated test suite.",
+      "timestamp": "2026-09-11T23:07:28.139Z"
+    },
+    {
+      "id": "audit-1789167169811",
+      "tenderId": "gem-tender-02",
+      "bidNumber": "GEM/2026/B/912830",
+      "tenderTitle": "Combined 16A Shuttered Sockets",
+      "buyerName": "Central Public Works Department (CPWD)",
+      "vendorName": "Legrand India Electricals",
+      "gstin": "27AAACL1234F1Z0",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 65,
+      "isMSME": true,
+      "status": "QUALIFIED",
+      "riskScore": 6,
+      "evaluatedClausesCount": 4,
+      "clausesPassedCount": 4,
+      "summary": "Audit run verified through automated test suite.",
+      "timestamp": "2026-09-11T22:52:49.811Z"
+    },
+    {
+      "id": "audit-1789165937564",
+      "tenderId": "gem-tender-02",
+      "bidNumber": "GEM/2026/B/912830",
+      "tenderTitle": "Combined 16A Shuttered Sockets",
+      "buyerName": "Central Public Works Department (CPWD)",
+      "vendorName": "Legrand India Electricals",
+      "gstin": "27AAACL1234F1Z0",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 65,
+      "isMSME": true,
+      "status": "QUALIFIED",
+      "riskScore": 6,
+      "evaluatedClausesCount": 4,
+      "clausesPassedCount": 4,
+      "summary": "Audit run verified through automated test suite.",
+      "timestamp": "2026-09-11T22:32:17.564Z"
+    },
+    {
+      "id": "audit-1789165215067",
+      "tenderId": "gem-tender-02",
+      "bidNumber": "GEM/2026/B/912830",
+      "tenderTitle": "Combined 16A Shuttered Sockets",
+      "buyerName": "Central Public Works Department (CPWD)",
+      "vendorName": "Legrand India Electricals",
+      "gstin": "27AAACL1234F1Z0",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 65,
+      "isMSME": true,
+      "status": "QUALIFIED",
+      "riskScore": 6,
+      "evaluatedClausesCount": 4,
+      "clausesPassedCount": 4,
+      "summary": "Audit run verified through automated test suite.",
+      "timestamp": "2026-09-11T22:20:15.067Z"
+    },
+    {
+      "id": "audit-1789164723003",
+      "tenderId": "gem-tender-02",
+      "bidNumber": "GEM/2026/B/912830",
+      "tenderTitle": "Combined 16A Shuttered Sockets",
+      "buyerName": "Central Public Works Department (CPWD)",
+      "vendorName": "Legrand India Electricals",
+      "gstin": "27AAACL1234F1Z0",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 65,
+      "isMSME": true,
+      "status": "QUALIFIED",
+      "riskScore": 6,
+      "evaluatedClausesCount": 4,
+      "clausesPassedCount": 4,
+      "summary": "Audit run verified through automated test suite.",
+      "timestamp": "2026-09-11T22:12:03.003Z"
+    },
+    {
+      "id": "audit-1789164204643",
+      "tenderId": "gem-tender-02",
+      "bidNumber": "GEM/2026/B/912830",
+      "tenderTitle": "Combined 16A Shuttered Sockets",
+      "buyerName": "Central Public Works Department (CPWD)",
+      "vendorName": "Legrand India Electricals",
+      "gstin": "27AAACL1234F1Z0",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 65,
+      "isMSME": true,
+      "status": "QUALIFIED",
+      "riskScore": 6,
+      "evaluatedClausesCount": 4,
+      "clausesPassedCount": 4,
+      "summary": "Audit run verified through automated test suite.",
+      "timestamp": "2026-09-11T22:03:24.643Z"
+    },
+    {
+      "id": "audit-1789163549214",
+      "tenderId": "gem-tender-02",
+      "bidNumber": "GEM/2026/B/912830",
+      "tenderTitle": "Combined 16A Shuttered Sockets",
+      "buyerName": "Central Public Works Department (CPWD)",
+      "vendorName": "Legrand India Electricals",
+      "gstin": "27AAACL1234F1Z0",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 65,
+      "isMSME": true,
+      "status": "QUALIFIED",
+      "riskScore": 6,
+      "evaluatedClausesCount": 4,
+      "clausesPassedCount": 4,
+      "summary": "Audit run verified through automated test suite.",
+      "timestamp": "2026-09-11T21:52:29.214Z"
+    },
+    {
+      "id": "audit-1789163274398",
+      "tenderId": "gem-tender-02",
+      "bidNumber": "GEM/2026/B/912830",
+      "tenderTitle": "Combined 16A Shuttered Sockets",
+      "buyerName": "Central Public Works Department (CPWD)",
+      "vendorName": "Legrand India Electricals",
+      "gstin": "27AAACL1234F1Z0",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 65,
+      "isMSME": true,
+      "status": "QUALIFIED",
+      "riskScore": 6,
+      "evaluatedClausesCount": 4,
+      "clausesPassedCount": 4,
+      "summary": "Audit run verified through automated test suite.",
+      "timestamp": "2026-09-11T21:47:54.398Z"
+    },
+    {
+      "id": "audit-1789162196465",
+      "tenderId": "gem-tender-02",
+      "bidNumber": "GEM/2026/B/912830",
+      "tenderTitle": "Combined 16A Shuttered Sockets",
+      "buyerName": "Central Public Works Department (CPWD)",
+      "vendorName": "Legrand India Electricals",
+      "gstin": "27AAACL1234F1Z0",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 65,
+      "isMSME": true,
+      "status": "QUALIFIED",
+      "riskScore": 6,
+      "evaluatedClausesCount": 4,
+      "clausesPassedCount": 4,
+      "summary": "Audit run verified through automated test suite.",
+      "timestamp": "2026-09-11T21:29:56.465Z"
+    },
+    {
+      "id": "audit-1789162160856",
+      "tenderId": "gem-tender-02",
+      "bidNumber": "GEM/2026/B/912830",
+      "tenderTitle": "Combined 16A Shuttered Sockets",
+      "buyerName": "Central Public Works Department (CPWD)",
+      "vendorName": "Legrand India Electricals",
+      "gstin": "27AAACL1234F1Z0",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 65,
+      "isMSME": true,
+      "status": "QUALIFIED",
+      "riskScore": 6,
+      "evaluatedClausesCount": 4,
+      "clausesPassedCount": 4,
+      "summary": "Audit run verified through automated test suite.",
+      "timestamp": "2026-09-11T21:29:20.856Z"
+    },
+    {
+      "id": "audit-001",
+      "tenderId": "gem-tender-01",
+      "bidNumber": "GEM/2026/B/849201",
+      "tenderTitle": "Supply of Heavy-Duty PVC Insulated Copper Power Cables (1.1 kV)",
+      "buyerName": "NTPC Limited (Dadri, UP)",
+      "vendorName": "Bharat PolyCable Industries Ltd.",
+      "gstin": "07AAACB2481Q1Z4",
+      "bisLicense": "CM/L-8492015",
+      "localContent": 68,
+      "isMSME": false,
+      "status": "QUALIFIED",
+      "riskScore": 4,
+      "evaluatedClausesCount": 3,
+      "clausesPassedCount": 3,
+      "summary": "Full compliance with IS 694:2010. Conductor resistance and flammability parameters tested compliant at NABL lab.",
+      "timestamp": "2026-09-11T16:30:00Z"
+    },
+    {
+      "id": "audit-002",
+      "tenderId": "gem-tender-01",
+      "bidNumber": "GEM/2026/B/849201",
+      "tenderTitle": "Supply of Heavy-Duty PVC Insulated Copper Power Cables (1.1 kV)",
+      "buyerName": "NTPC Limited (Dadri, UP)",
+      "vendorName": "Global Wire & Tech Exports Pvt Ltd",
+      "gstin": "06AAACG9921K1ZZ",
+      "bisLicense": "CM/L-1903482",
+      "localContent": 22,
+      "isMSME": false,
+      "status": "DISQUALIFIED",
+      "riskScore": 89,
+      "evaluatedClausesCount": 3,
+      "clausesPassedCount": 0,
+      "summary": "Substandard product failure. Conductor electrical resistance exceeded standard threshold (14.5 vs 12.1 ohm/km). BIS license is expired.",
+      "timestamp": "2026-09-11T17:15:00Z"
+    }
+  ],
+  "verifiedQueriesCache": {}
+}

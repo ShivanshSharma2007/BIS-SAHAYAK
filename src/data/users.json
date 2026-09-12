@@ -1,0 +1,18 @@
+[
+  {
+    "id": "u1",
+    "name": "Jane Doe",
+    "email": "demo@bis.gov.in",
+    "password": "$2b$10$GzxGgXxc0e/EwmdZG/F14uSC2jFGnWHjyROQ2dv9ZNlhF/6rvYVrq",
+    "role": "admin",
+    "department": "Compliance"
+  },
+  {
+    "id": "u2",
+    "name": "John Smith",
+    "email": "user@bis.gov.in",
+    "password": "$2b$10$GzxGgXxc0e/EwmdZG/F14uSC2jFGnWHjyROQ2dv9ZNlhF/6rvYVrq",
+    "role": "user",
+    "department": "Review"
+  }
+]
