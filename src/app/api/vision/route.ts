@@ -80,27 +80,45 @@ export async function POST(req: Request) {
     // Prepare the base64 part
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.7-flash',
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { text: "Analyze this image thoroughly. 1) Determine if it is a product rating plate, BIS label, product packaging, or technical specification label. If it's a person, selfie, landscape, animal, or non-product object, reject it (isValid: false) and explain why in reasoning. 2) If it IS a valid product, extract all visible technical specifications (brand, model, voltage, wattage, frequency, capacity, serial numbers, certifications, standard numbers) into 'extractedParameters'. 3) Identify the exact Indian Standard (IS Code) applicable under BIS guidelines, provide its full official title, the scheme type ('CRS' or 'Scheme-I (ISI Mark)'), and 3-4 mandatory compliance clauses." },
+    const candidateModels = ['gemini-3.7-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+    let response: any = null;
+    let lastError: any = null;
+
+    for (const model of candidateModels) {
+      try {
+        response = await ai.models.generateContent({
+          model: model,
+          contents: [
             {
-              inlineData: {
-                data: base64Data,
-                mimeType: 'image/jpeg'
-              }
+              role: 'user',
+              parts: [
+                { text: "Analyze this image thoroughly. 1) Determine if it is a product rating plate, BIS label, product packaging, or technical specification label. If it's a person, selfie, landscape, animal, or non-product object, reject it (isValid: false) and explain why in reasoning. 2) If it IS a valid product, extract all visible technical specifications (brand, model, voltage, wattage, frequency, capacity, serial numbers, certifications, standard numbers) into 'extractedParameters'. 3) Identify the exact Indian Standard (IS Code) applicable under BIS guidelines, provide its full official title, the scheme type ('CRS' or 'Scheme-I (ISI Mark)'), and 3-4 mandatory compliance clauses." },
+                {
+                  inlineData: {
+                    data: base64Data,
+                    mimeType: 'image/jpeg'
+                  }
+                }
+              ]
             }
-          ]
-        }
-      ],
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: visionSchema,
+          ],
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: visionSchema,
+          }
+        });
+        // If successful, break out of loop
+        break;
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`[Vision API] Model ${model} failed with: ${err.message}. Trying next...`);
+        // Continue to next model
       }
-    });
+    }
+
+    if (!response) {
+      throw lastError || new Error("All Gemini models failed or are overloaded.");
+    }
 
     const responseText = response.text;
     if (!responseText) {

@@ -3,6 +3,8 @@ import { GoogleGenAI } from '@google/genai';
 // Ranked list of active Google Gemini models to automatically cascade through on quota exhaustion (429) or deprecation (404)
 export const CANDIDATE_GEMINI_MODELS = [
   'gemini-3.7-flash',
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite'
 ];
 
 interface GenerateOptions {
