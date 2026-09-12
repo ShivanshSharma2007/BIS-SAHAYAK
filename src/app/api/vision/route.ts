@@ -65,6 +65,11 @@ const visionSchema = {
 
 export async function POST(req: Request) {
   try {
+    if (!process.env.GEMINI_API_KEY) {
+      console.error("Missing GEMINI_API_KEY");
+      return NextResponse.json({ error: 'GEMINI_API_KEY environment variable is missing on the server.' }, { status: 500 });
+    }
+
     const body = await req.json();
     const { image } = body; // Base64 string
 

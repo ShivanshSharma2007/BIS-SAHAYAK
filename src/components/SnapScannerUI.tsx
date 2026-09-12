@@ -78,20 +78,50 @@ export default function SnapScannerUI() {
     }, 600);
   };
 
-  const fileToBase64 = (file: File): Promise<string> => {
+  const compressImage = (fileOrBlob: File | Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
+      reader.readAsDataURL(fileOrBlob);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          
+          // Max dimension 1200px to ensure base64 is well under Vercel's 4.5MB limit
+          const maxDim = 1200;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Compress to JPEG with 0.8 quality
+          resolve(canvas.toDataURL("image/jpeg", 0.8));
+        };
+        img.onerror = (e) => reject(e);
+      };
+      reader.onerror = (e) => reject(e);
     });
   };
 
   const urlToBase64 = async (url: string): Promise<string> => {
     const response = await fetch(url);
     const blob = await response.blob();
-    return fileToBase64(blob as File);
+    return compressImage(blob);
   };
+
 
   const handleScan = async (eventOrSource?: React.MouseEvent | string) => {
     // If the button clicked it, it passes a MouseEvent. If Live Demo called it, it passes a string.
@@ -120,7 +150,12 @@ export default function SnapScannerUI() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to process image via AI Engine");
+        let errMsg = "Failed to process image via AI Engine";
+        try {
+          const errData = await response.json();
+          if (errData.error) errMsg = `Server Error: ${errData.error}`;
+        } catch (e) {}
+        throw new Error(errMsg);
       }
 
       setProgress({ status: "Finalizing results", progress: 90 });
