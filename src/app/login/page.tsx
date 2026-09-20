@@ -598,32 +598,7 @@ export default function LoginPage() {
               <span>Continue with Google</span>
             </button>
 
-            {/* Quick Demo Access Options */}
-            {!isSignUp && (
-              <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col gap-3">
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Demo Quick Login</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleLogin("demo@bis.gov.in", "password123", "BIS Officer")}
-                    disabled={isLoading || !!loadingDemo}
-                    className="flex flex-col items-center justify-center p-2.5 rounded-lg border border-blue-100 bg-blue-50/50 hover:bg-blue-100 text-blue-700 transition-colors disabled:opacity-50 group"
-                  >
-                    <ShieldCheck className="w-5 h-5 mb-1 text-blue-600 group-hover:scale-110 transition-transform" />
-                    <span className="text-[11px] font-bold">BIS Officer</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleLogin("consumer@b2c.in", "password123", "B2C Consumer")}
-                    disabled={isLoading || !!loadingDemo}
-                    className="flex flex-col items-center justify-center p-2.5 rounded-lg border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100 text-emerald-700 transition-colors disabled:opacity-50 group"
-                  >
-                    <UserCircle2 className="w-5 h-5 mb-1 text-emerald-600 group-hover:scale-110 transition-transform" />
-                    <span className="text-[11px] font-bold">B2C Consumer</span>
-                  </button>
-                </div>
-              </div>
-            )}
+
           </div>
 
           <div className="pt-6 mt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-400 font-medium relative z-10">
