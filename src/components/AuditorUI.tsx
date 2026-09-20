@@ -27,20 +27,27 @@ import {
   BadgeAlert,
   BadgeCheck,
   Zap,
-  Info
+  Info,
+  Search
 } from "lucide-react";
 import { GeMTender } from "@/app/api/gem-audit/tenders/route";
 import { BidderVerificationResponse, PortalCheckResult } from "@/app/api/gem-audit/verify-bidder/route";
 import { TechnicalAuditResult, ClauseAuditItem } from "@/app/api/gem-audit/clause-audit/route";
+import { useAppStore } from "@/store/useAppStore";
 
 export default function AuditorUI() {
+  const language = useAppStore(state => state.language);
   // State for tenders catalog
   const [tenders, setTenders] = useState<GeMTender[]>([]);
   const [selectedTender, setSelectedTender] = useState<GeMTender | null>(null);
   const [loadingTenders, setLoadingTenders] = useState(true);
 
+  // Dynamic Tender Fetch State
+  const [dynamicBidNumber, setDynamicBidNumber] = useState("");
+  const [isFetchingDynamic, setIsFetchingDynamic] = useState(false);
+
   // Selected Scenario State
-  const [activeScenario, setActiveScenario] = useState<"compliant" | "substandard" | "msme" | "custom">("compliant");
+  const [activeScenario, setActiveScenario] = useState<"compliant" | "substandard" | "msme" | "suspended" | "scopemismatch" | "custom">("compliant");
   const [showCustomInputs, setShowCustomInputs] = useState(false);
 
   // Bidder inputs
@@ -88,23 +95,26 @@ export default function AuditorUI() {
   }, []);
 
   // Quick Preset Scenarios
-  const selectScenario = (type: "compliant" | "substandard" | "msme") => {
+  const selectScenario = (type: "compliant" | "substandard" | "msme" | "suspended" | "scopemismatch") => {
     setActiveScenario(type);
     setShowCustomInputs(false);
 
     if (type === "compliant") {
-      setVendorName("Havells India Limited");
-      setGstin("07AAACH1234F1Z5");
+      setVendorName(selectedTender?.bidNumber === "GEM/2026/B/849201" ? "Havells India Limited" : "Verified Premium OEM Ltd");
+      setGstin("07AAACH1234H1Z5");
       setBisLicense("CM/L-8492015");
       setStandardClaimed(selectedTender?.mandatoryStandard || "IS 694:2010");
-      setOemAuthCode("OEM-AUTH-9921");
+      setOemAuthCode("OEM-AUTH-992");
       setLocalContent(65);
       setIsMsme(false);
       setUdyamNumber("");
-      setUploadedFileName("Havells_IS694_Official_NABL_Report.pdf");
-      setReportText(
-        "High purity electrolytic annealed copper conductor purity tested at 99.94%. Conductor electrical resistance measured at 11.8 ohm/km at 20 deg C. Nominal radial insulation thickness 0.72 mm, minimum 0.58 mm. Oxygen index 31.2%. Withstood 3.0 kV AC RMS water immersion test for 5 minutes without breakdown."
-      );
+      setUploadedFileName("Official_NABL_Report.pdf");
+      
+      const dynamicReport = selectedTender?.clauses
+        ? selectedTender.clauses.map(c => `Tested for ${c.title}: ${c.requirement} - PASSED.`).join(" ")
+        : "High purity electrolytic annealed copper conductor purity tested at 99.94%. Conductor electrical resistance measured at 11.8 ohm/km at 20 deg C. Nominal radial insulation thickness 0.72 mm, minimum 0.58 mm. Oxygen index 31.2%. Withstood 3.0 kV AC RMS water immersion test for 5 minutes without breakdown.";
+      
+      setReportText(dynamicReport);
     } else if (type === "substandard") {
       setVendorName("ShoddyTech Cables & Wires Corp");
       setGstin("06AAACF9999Z1Z0");
@@ -115,12 +125,39 @@ export default function AuditorUI() {
       setIsMsme(false);
       setUdyamNumber("");
       setUploadedFileName("ShoddyTech_Datasheet_Draft.pdf");
+      
+      const dynamicReport = selectedTender?.clauses
+        ? selectedTender.clauses.map((c, idx) => idx === 0 ? `Tested for ${c.title}: FAILED to meet standard limit.` : `Tested for ${c.title}: ${c.requirement} - PASSED.`).join(" ")
+        : "Commercial grade copper wire with standard PVC sheath. Conductor electrical resistance recorded at 14.5 ohm/km (exceeded standard limit). Flammability: Oxygen index tested at 23.5% (failed IS 10810 threshold). Water immersion test not completed due to early insulation puncture at 1.8 kV.";
+      
+      setReportText(dynamicReport);
+    } else if (type === "suspended") {
+      setVendorName("Nova Lighting Devices");
+      setGstin("33AAACB5555C1Z1");
+      setBisLicense("CM/L-1234567");
+      setStandardClaimed(selectedTender?.mandatoryStandard || "IS 10322:Part 5:Sec 1:2012");
+      setOemAuthCode("OEM-NOVA-555");
+      setLocalContent(60);
+      setIsMsme(false);
+      setUdyamNumber("");
+      setUploadedFileName("Nova_Test_Report.pdf");
+      setReportText("Test report indicates marginal compliance, but vendor is currently suspended on CPPP.");
+    } else if (type === "scopemismatch") {
+      setVendorName("MedLife Equipments Ltd");
+      setGstin("09AAACM2222M1Z2");
+      setBisLicense("CM/L-8889990");
+      setStandardClaimed(selectedTender?.mandatoryStandard ? `${selectedTender.mandatoryStandard} (Partial)` : "IS 7285:Part 2:2004");
+      setOemAuthCode("MEDLIFE-AUTH");
+      setLocalContent(70);
+      setIsMsme(true);
+      setUdyamNumber("UDYAM-UP-02-12345");
+      setUploadedFileName("MedLife_Test.pdf");
       setReportText(
-        "Commercial grade copper wire with standard PVC sheath. Conductor electrical resistance recorded at 14.5 ohm/km (exceeded standard limit). Flammability: Oxygen index tested at 23.5% (failed IS 10810 threshold). Water immersion test not completed due to early insulation puncture at 1.8 kV."
+        "Product tested for basic physical properties, but critical advanced tests were omitted from the scope."
       );
     } else {
       // MSME
-      setVendorName("Surya Agro-Power Cables (MSME)");
+      setVendorName(selectedTender?.bidNumber === "GEM/2026/B/849201" ? "Surya Agro-Power Cables (MSME)" : "Local Enterprise (MSME)");
       setGstin("27AAAFS5521K1Z2");
       setBisLicense("CM/L-7128941");
       setStandardClaimed(selectedTender?.mandatoryStandard || "IS 694:2010");
@@ -128,10 +165,13 @@ export default function AuditorUI() {
       setLocalContent(74);
       setIsMsme(true);
       setUdyamNumber("UDYAM-MH-01-0084921");
-      setUploadedFileName("Surya_MSME_Type_Certificate.pdf");
-      setReportText(
-        "Electrolytic copper purity tested at 99.91%. Conductor electrical resistance measured at 12.05 ohm/km. Insulation thickness nominal 0.70 mm. Oxygen index 29.8%. Passed 3 kV high voltage immersion test."
-      );
+      setUploadedFileName("MSME_Type_Certificate.pdf");
+      
+      const dynamicReport = selectedTender?.clauses
+        ? selectedTender.clauses.map(c => `Tested for ${c.title}: ${c.requirement} - PASSED.`).join(" ")
+        : "Electrolytic copper purity tested at 99.91%. Conductor electrical resistance measured at 12.05 ohm/km. Insulation thickness nominal 0.70 mm. Oxygen index 29.8%. Passed 3 kV high voltage immersion test.";
+      
+      setReportText(dynamicReport);
     }
   };
 
@@ -142,6 +182,39 @@ export default function AuditorUI() {
     setHasRunAudit(false);
     setVerificationResult(null);
     setTechnicalResult(null);
+  };
+
+  // Automatically update the mock bidder data if the tender changes
+  useEffect(() => {
+    if (selectedTender) {
+      selectScenario(activeScenario);
+    }
+  }, [selectedTender]); // Re-run when selectedTender changes
+
+  // Fetch dynamic tender
+  const handleFetchDynamicTender = async () => {
+    if (!dynamicBidNumber) return;
+    setIsFetchingDynamic(true);
+    try {
+      const res = await fetch("/api/gem-audit/tenders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bidNumber: dynamicBidNumber })
+      });
+      const data = await res.json();
+      if (data.tender) {
+        setTenders(prev => [data.tender, ...prev.filter(t => t.id !== data.tender.id)]);
+        handleSelectTender(data.tender);
+        setDynamicBidNumber("");
+      } else {
+        alert("Could not resolve tender. " + (data.error || ""));
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error fetching tender.");
+    } finally {
+      setIsFetchingDynamic(false);
+    }
   };
 
   // Run the Audit
@@ -165,7 +238,8 @@ export default function AuditorUI() {
           oemAuthorizationCode: oemAuthCode,
           localContentPercent: localContent,
           isMsme,
-          udyamNumber
+          udyamNumber,
+          language
         })
       });
       const verifyData: BidderVerificationResponse = await verifyRes.json();
@@ -185,7 +259,8 @@ export default function AuditorUI() {
             "GSTIN": gstin,
             "BIS License": bisLicense,
             "Local Content": `${localContent}%`
-          }
+          },
+          language
         })
       });
       const clauseData: TechnicalAuditResult = await clauseRes.json();
@@ -307,13 +382,13 @@ export default function AuditorUI() {
     technicalResult?.overallVerdict === "TECHNICALLY_DISQUALIFIED";
 
   return (
-    <div className="flex flex-col w-full h-full min-h-[calc(100vh-4rem)] bg-[#F8FAFC] text-slate-800 overflow-y-auto">
+    <div className="flex flex-col w-full h-full min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-800 overflow-y-auto selection:bg-[#163F73]/20">
       {/* Top Header Bar */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-30 px-6 py-4 shadow-xs">
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-30 px-6 py-4 shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#163F73] text-white flex items-center justify-center shadow-sm">
-              <FileCheck2 className="w-5 h-5" />
+          <div className="flex items-center gap-4">
+            <div className="w-11 h-11 rounded-xl bg-[#163F73] text-white flex items-center justify-center shadow-md">
+              <FileCheck2 className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -363,26 +438,30 @@ export default function AuditorUI() {
                 Buyer: <span className="font-medium text-slate-700">{selectedTender?.buyer.name}</span> ({selectedTender?.buyer.location}) · Value: <span className="font-medium text-slate-700">{selectedTender?.value}</span> · Closing: <span className="font-medium text-slate-700">{selectedTender?.closingDate}</span>
               </p>
             </div>
-
-            {/* Clean Dropdown to Switch Tender */}
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs font-medium text-slate-400">Change Tender:</span>
-              <div className="relative">
-                <select
-                  value={selectedTender?.id || ""}
-                  onChange={(e) => {
-                    const found = tenders.find((t) => t.id === e.target.value);
-                    if (found) handleSelectTender(found);
-                  }}
-                  className="appearance-none bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-medium rounded-xl px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#163F73]/20 cursor-pointer shadow-2xs"
+            {/* Clean Dropdown & Dynamic Fetch */}
+            <div className="flex flex-col lg:flex-row lg:items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+              <div className="flex items-center gap-2 w-full lg:w-auto">
+                <Search className="w-4 h-4 text-slate-400 hidden sm:block" />
+                <input
+                  type="text"
+                  placeholder="Search GeM Bid No. (e.g., GEM/2026/B/849201)"
+                  value={dynamicBidNumber}
+                  onChange={(e) => setDynamicBidNumber(e.target.value)}
+                  className="w-full lg:w-72 text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 focus:ring-2 focus:ring-[#163F73]/20 focus:outline-none placeholder:text-slate-400"
+                />
+                <button
+                  type="button"
+                  onClick={handleFetchDynamicTender}
+                  disabled={isFetchingDynamic || !dynamicBidNumber}
+                  className="px-5 py-2.5 bg-[#163F73] hover:bg-[#1f4a86] disabled:bg-slate-400 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
                 >
-                  {tenders.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.bidNumber} — {t.category} ({t.mandatoryStandard})
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+                  {isFetchingDynamic ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Zap className="w-3.5 h-3.5" />
+                  )}
+                  <span>Search Tender</span>
+                </button>
               </div>
             </div>
           </div>
@@ -415,14 +494,14 @@ export default function AuditorUI() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                 {/* Scenario 1: Tier-1 OEM (Pass) */}
                 <div
                   onClick={() => selectScenario("compliant")}
-                  className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative shadow-xs flex flex-col justify-between ${
+                  className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative flex flex-col justify-between ${
                     activeScenario === "compliant"
-                      ? "border-emerald-600 bg-emerald-50/40 ring-2 ring-emerald-500/20"
-                      : "border-slate-200 bg-white hover:border-slate-300"
+                      ? "border-emerald-500 bg-emerald-50/30 ring-1 ring-emerald-500 shadow-sm"
+                      : "border-slate-200 bg-white hover:border-emerald-300 hover:shadow-sm"
                   }`}
                 >
                   <div>
@@ -453,10 +532,10 @@ export default function AuditorUI() {
                 {/* Scenario 2: Sub-Standard (Reject) */}
                 <div
                   onClick={() => selectScenario("substandard")}
-                  className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative shadow-xs flex flex-col justify-between ${
+                  className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative flex flex-col justify-between ${
                     activeScenario === "substandard"
-                      ? "border-rose-600 bg-rose-50/40 ring-2 ring-rose-500/20"
-                      : "border-slate-200 bg-white hover:border-slate-300"
+                      ? "border-rose-500 bg-rose-50/30 ring-1 ring-rose-500 shadow-sm"
+                      : "border-slate-200 bg-white hover:border-rose-300 hover:shadow-sm"
                   }`}
                 >
                   <div>
@@ -487,10 +566,10 @@ export default function AuditorUI() {
                 {/* Scenario 3: MSME Startup (MII) */}
                 <div
                   onClick={() => selectScenario("msme")}
-                  className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative shadow-xs flex flex-col justify-between ${
+                  className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative flex flex-col justify-between ${
                     activeScenario === "msme"
-                      ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-500/20"
-                      : "border-slate-200 bg-white hover:border-slate-300"
+                      ? "border-blue-500 bg-blue-50/30 ring-1 ring-blue-500 shadow-sm"
+                      : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm"
                   }`}
                 >
                   <div>
@@ -515,6 +594,72 @@ export default function AuditorUI() {
                   <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
                     <div className="text-blue-700">✓ Udyam Verified · EMD Exempt</div>
                     <div className="text-blue-700">✓ 74% Local Content (Class-I)</div>
+                  </div>
+                </div>
+
+                {/* Scenario 4: Suspended License */}
+                <div
+                  onClick={() => selectScenario("suspended")}
+                  className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative flex flex-col justify-between ${
+                    activeScenario === "suspended"
+                      ? "border-amber-500 bg-amber-50/30 ring-1 ring-amber-500 shadow-sm"
+                      : "border-slate-200 bg-white hover:border-amber-300 hover:shadow-sm"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 uppercase">
+                        Suspended License
+                      </span>
+                      {activeScenario === "suspended" && (
+                        <div className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center">
+                          <Check className="w-3 h-3" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <ShieldAlert className="w-4 h-4 text-amber-600" />
+                      <h4 className="text-sm font-bold text-slate-900">Nova Lighting</h4>
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed mb-3">
+                      License currently suspended by BIS due to recent factory surveillance failure.
+                    </p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
+                    <div className="text-amber-700">✕ CM/L-1234567 Suspended</div>
+                  </div>
+                </div>
+
+                {/* Scenario 5: Scope Mismatch */}
+                <div
+                  onClick={() => selectScenario("scopemismatch")}
+                  className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative flex flex-col justify-between ${
+                    activeScenario === "scopemismatch"
+                      ? "border-purple-500 bg-purple-50/30 ring-1 ring-purple-500 shadow-sm"
+                      : "border-slate-200 bg-white hover:border-purple-300 hover:shadow-sm"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 uppercase">
+                        Scope Mismatch
+                      </span>
+                      {activeScenario === "scopemismatch" && (
+                        <div className="w-5 h-5 rounded-full bg-purple-500 text-white flex items-center justify-center">
+                          <Check className="w-3 h-3" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Layers className="w-4 h-4 text-purple-600" />
+                      <h4 className="text-sm font-bold text-slate-900">MedLife Equipments</h4>
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed mb-3">
+                      Active BIS license, but approved for a different IS standard (Oxygen Cylinders instead of required).
+                    </p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
+                    <div className="text-purple-700">✕ IS Standard Mismatch</div>
                   </div>
                 </div>
               </div>

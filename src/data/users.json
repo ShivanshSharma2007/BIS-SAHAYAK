@@ -14,5 +14,37 @@
     "password": "$2b$10$GzxGgXxc0e/EwmdZG/F14uSC2jFGnWHjyROQ2dv9ZNlhF/6rvYVrq",
     "role": "user",
     "department": "Review"
+  },
+  {
+    "id": "u3",
+    "name": "Alex Consumer",
+    "email": "consumer@b2c.in",
+    "password": "$2b$10$GzxGgXxc0e/EwmdZG/F14uSC2jFGnWHjyROQ2dv9ZNlhF/6rvYVrq",
+    "role": "user",
+    "department": "Consumer"
+  },
+  {
+    "name": "SHIVANSH SHARMA",
+    "email": "shivansh.sharma9311@gmail.com",
+    "password": "$2b$10$1j5/dmg6da6jVvlCSXdHKu/avt9i0ZpeCzDBnBzCwo9gfWvWSDgKO",
+    "role": "user",
+    "department": "Audit & Surveillance",
+    "id": "u1789857604447"
+  },
+  {
+    "name": "Mickoo Sharma",
+    "email": "mickoo.sharma9311@gmail.com",
+    "password": "$2b$10$1DRogUm2Cs6HKaxTjpepNuvxDB6DqNxM00un42jxS.VudTfBLSCJW",
+    "role": "user",
+    "department": "Manufacturer",
+    "id": "u1789883787105"
+  },
+  {
+    "name": "MICKOO SHARMA",
+    "email": "mickoo.sharma191801@gmail.com",
+    "password": "$2b$10$cKmev5RfnHqIrATnYOyuJuRPsPu3vynGvraW9Tak6TwYisFg2aMbS",
+    "role": "user",
+    "department": "Consumer",
+    "id": "u1789900876072"
   }
 ]

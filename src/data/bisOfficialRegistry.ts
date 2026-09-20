@@ -118,6 +118,48 @@ export const OFFICIAL_BIS_LICENSES: OfficialBISLicense[] = [
     nablLabAccreditation: "NABL TC-6340 (National Physical Laboratory)",
     qcoGazetteOrder: "MeitY Electronics and IT Goods Mandatory QCO"
   },
+  {
+    cmlNumber: "CM/L-8291044",
+    manufacturerName: "Everest Kanto Cylinder Limited",
+    brandName: "EKC",
+    factoryAddress: "Plot No. 1, Tarapur Industrial Area, Boisar, Maharashtra 401506",
+    standard: "IS 7285",
+    productScope: "Seamless steel cylinders for high pressure liquefiable and non-liquefiable gases (Medical Oxygen)",
+    validityFrom: "01-Sep-2022",
+    validityTo: "31-Aug-2027",
+    status: "OPERATIVE",
+    branchOffice: "Mumbai Branch Office-I (MUBO-I)",
+    nablLabAccreditation: "NABL TC-7452 (Internal Testing Lab - Accredited)",
+    qcoGazetteOrder: "DPIIT S.O. High Pressure Gas Cylinders QCO"
+  },
+  {
+    cmlNumber: "R-41189920",
+    manufacturerName: "Acer India Pvt Ltd",
+    brandName: "ACER",
+    factoryAddress: "RS No. 38/2, Sedarapet, Puducherry 605111",
+    standard: "IS 13252",
+    productScope: "Information Technology Equipment - Safety Requirement (Laptops and Notebooks)",
+    validityFrom: "15-Feb-2024",
+    validityTo: "14-Feb-2027",
+    status: "OPERATIVE",
+    branchOffice: "Chennai Branch Office (CNBO)",
+    nablLabAccreditation: "NABL TC-8091 (TUV Rheinland India)",
+    qcoGazetteOrder: "MeitY Electronics and IT Goods Mandatory QCO"
+  },
+  {
+    cmlNumber: "CM/L-SUSP-1122",
+    manufacturerName: "MediBreath Cylinders (Defaulter)",
+    brandName: "MEDIBREATH",
+    factoryAddress: "Shed 4, Peenya Industrial Estate, Bangalore",
+    standard: "IS 7285",
+    productScope: "Seamless steel cylinders",
+    validityFrom: "01-Jan-2021",
+    validityTo: "31-Dec-2025",
+    status: "SUSPENDED",
+    branchOffice: "Bangalore Branch Office",
+    nablLabAccreditation: "SUSPENDED PENDING INVESTIGATION",
+    qcoGazetteOrder: "Suspended under BIS Act Section 14 (Safety Violation)"
+  },
   // Suspended & Expired for Fraud Radar / Pre-Bid Disqualification
   {
     cmlNumber: "CM/L-EXPIRED-2023",

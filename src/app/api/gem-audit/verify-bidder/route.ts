@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { officialISNumbers } from "@/data/bisOfficialList";
-import { lookupOfficialBISLicense } from "@/data/bisOfficialRegistry";
+import { translateJSON } from "@/lib/gemini";
+import { verifyBISLicense, checkGSTINStateMatch, verifyGSTINLive } from "@/lib/scrapers/bisScraper";
+import { searchDebarmentList } from "@/data/cpppDebarmentList";
 
 export interface PortalCheckResult {
   id: string;
@@ -18,22 +19,12 @@ export interface BidderVerificationResponse {
   bidNumber: string;
   vendorName: string;
   overallStatus: "ELIGIBLE" | "CONDITIONAL" | "DISQUALIFIED";
-  riskScore: number; // 0 - 100 (lower is better risk, or higher is compliance)
+  riskScore: number; // 0 - 100
   complianceRating: "AAA" | "AA" | "B" | "SUSPECT" | "BLACKLISTED";
   checks: PortalCheckResult[];
   disqualificationReasons: string[];
   advisoryNotes: string[];
 }
-
-// Known sample blacklisted or suspect entities for realistic testing
-const CPPP_BLACKLISTED_KEYWORDS = [
-  "shoddytech",
-  "fakecorp",
-  "debarred",
-  "blacklisted",
-  "fraud",
-  "substandard"
-];
 
 export async function POST(request: Request) {
   try {
@@ -47,7 +38,8 @@ export async function POST(request: Request) {
       oemAuthorizationCode = "",
       localContentPercent = 50,
       isMsme = false,
-      udyamNumber = ""
+      udyamNumber = "",
+      language = "english"
     } = body;
 
     const checks: PortalCheckResult[] = [];
@@ -55,23 +47,10 @@ export async function POST(request: Request) {
     const advisoryNotes: string[] = [];
 
     // 1. BIS Portal Verification
-    const cleanLic = bisLicense.trim().toUpperCase();
-    const cleanStd = standardClaimed.trim().toUpperCase();
-    
-    // Extract primary IS number (e.g. from "IS 694:2010" -> 694, "IS 1293:2019" -> 1293, "IS 16221 (Part 2)" -> 16221)
-    const isMatch = cleanStd.match(/IS\s*(?:\/IEC\s*)?(\d+)/i);
-    const primaryISNum = isMatch ? isMatch[1] : cleanStd.split(":")[0].replace(/\D/g, "");
-    const formattedIS = `IS ${primaryISNum}`;
-    
-    const isRecognizedIS =
-      officialISNumbers.includes(formattedIS) ||
-      officialISNumbers.some((std) => cleanStd.startsWith(std) || cleanStd.includes(std)) ||
-      ["694", "1293", "16221", "16169", "10322", "13450", "302", "8130", "10810"].includes(primaryISNum);
-
-    const officialMatch = lookupOfficialBISLicense(cleanLic);
+    const bisResult = await verifyBISLicense(bisLicense, standardClaimed);
     let bisCheck: PortalCheckResult;
 
-    if (!cleanLic) {
+    if (!bisLicense.trim()) {
       bisCheck = {
         id: "bis-portal",
         portalName: "Bureau of Indian Standards (manakonline.in)",
@@ -81,119 +60,84 @@ export async function POST(request: Request) {
         details: "Mandatory Quality Control Order (QCO) requires valid BIS certification for this tender category."
       };
       disqualificationReasons.push("Missing mandatory BIS certification under Indian Standards QCO.");
-    } else if (officialMatch) {
-      if (officialMatch.status === "EXPIRED" || officialMatch.status === "CANCELLED" || officialMatch.status === "SUSPENDED") {
+    } else if (bisResult.found && bisResult.license) {
+      const match = bisResult.license;
+      if (match.status === "EXPIRED" || match.status === "CANCELLED" || match.status === "SUSPENDED") {
         bisCheck = {
           id: "bis-portal",
           portalName: "Bureau of Indian Standards (manakonline.in)",
           category: "REGULATORY",
           status: "DISQUALIFIED",
-          headline: `BIS License ${officialMatch.status}: ${cleanLic}`,
-          details: `License ${cleanLic} (${officialMatch.manufacturerName}) is officially recorded as ${officialMatch.status} by ${officialMatch.branchOffice}. ${officialMatch.qcoGazetteOrder}.`,
+          headline: `BIS License ${match.status}: ${bisLicense.toUpperCase()}`,
+          details: `License ${bisLicense.toUpperCase()} (${match.manufacturerName}) is officially recorded as ${match.status} by ${match.branchOffice}. ${match.qcoGazetteOrder}.`,
           metadata: {
-            licenseNumber: cleanLic,
-            manufacturer: officialMatch.manufacturerName,
-            status: officialMatch.status,
-            branchOffice: officialMatch.branchOffice,
-            validityTo: officialMatch.validityTo,
-            qcoOrder: officialMatch.qcoGazetteOrder
+            licenseNumber: bisLicense.toUpperCase(),
+            manufacturer: match.manufacturerName,
+            status: match.status,
+            branchOffice: match.branchOffice,
+            validityTo: match.validityTo,
+            qcoOrder: match.qcoGazetteOrder
           }
         };
-        disqualificationReasons.push(`BIS License ${cleanLic} has been marked ${officialMatch.status} by Bureau of Indian Standards.`);
+        disqualificationReasons.push(`BIS License ${bisLicense.toUpperCase()} has been marked ${match.status} by Bureau of Indian Standards.`);
       } else {
-        // Operative official match
-        const isStandardMatch = cleanStd.includes(officialMatch.standard) || officialMatch.standard.includes(primaryISNum);
-        if (!isStandardMatch) {
-          bisCheck = {
-            id: "bis-portal",
-            portalName: "Bureau of Indian Standards (manakonline.in)",
-            category: "REGULATORY",
-            status: "DISQUALIFIED",
-            headline: "Mismatched Product Scope on BIS License",
-            details: `License ${cleanLic} is certified for ${officialMatch.standard} (${officialMatch.productScope}), but this tender mandates ${cleanStd}.`,
-            metadata: {
-              licenseNumber: cleanLic,
-              certifiedStandard: officialMatch.standard,
-              requiredStandard: cleanStd,
-              status: "Scope Mismatch"
-            }
-          };
-          disqualificationReasons.push(`BIS License ${cleanLic} does not cover required standard ${cleanStd} (certified for ${officialMatch.standard}).`);
-        } else {
-          bisCheck = {
-            id: "bis-portal",
-            portalName: "Bureau of Indian Standards (manakonline.in)",
-            category: "REGULATORY",
-            status: "VERIFIED",
-            headline: `Valid BIS Certificate: ${officialMatch.manufacturerName}`,
-            details: `License ${cleanLic} authenticated on Manakonline for ${officialMatch.standard}. Operative through ${officialMatch.validityTo}. Factory at ${officialMatch.factoryAddress}. Tested by ${officialMatch.nablLabAccreditation}.`,
-            metadata: {
-              licenseNumber: cleanLic,
-              manufacturer: officialMatch.manufacturerName,
-              brand: officialMatch.brandName,
-              status: officialMatch.status,
-              validity: `Operative until ${officialMatch.validityTo}`,
-              branchOffice: officialMatch.branchOffice,
-              testingLab: officialMatch.nablLabAccreditation,
-              gazetteOrder: officialMatch.qcoGazetteOrder
-            }
-          };
-        }
+        // Active
+        bisCheck = {
+          id: "bis-portal",
+          portalName: "Bureau of Indian Standards (manakonline.in)",
+          category: "REGULATORY",
+          status: "VERIFIED",
+          headline: `Valid BIS Certificate: ${match.manufacturerName}`,
+          details: `License ${bisLicense.toUpperCase()} authenticated via ${bisResult.source} for ${match.standard}. Operative through ${match.validityTo}. Factory at ${match.factoryAddress}. Tested by ${match.nablLabAccreditation}.`,
+          metadata: {
+            licenseNumber: bisLicense.toUpperCase(),
+            manufacturer: match.manufacturerName,
+            brand: match.brandName,
+            status: match.status,
+            validity: `Operative until ${match.validityTo}`,
+            source: bisResult.source
+          }
+        };
       }
-    } else if (cleanLic.includes("EXP") || cleanLic.includes("CANCEL") || cleanLic.includes("0000000")) {
+    } else if (bisResult.found && bisResult.aiGeneratedData) {
+      // AI Fallback
+      const ai = bisResult.aiGeneratedData;
       bisCheck = {
         id: "bis-portal",
         portalName: "Bureau of Indian Standards (manakonline.in)",
         category: "REGULATORY",
-        status: "DISQUALIFIED",
-        headline: "BIS License Expired or Suspended",
-        details: `License ${cleanLic} was flagged as EXPIRED/CANCELLED on the BIS Central Portal as of last Gazette audit.`,
+        status: ai.likelyStatus === "OPERATIVE" ? "VERIFIED" : "SUSPECT",
+        headline: ai.likelyStatus === "OPERATIVE" ? "AI Verified BIS Format" : "Suspect BIS Format (AI Analysed)",
+        details: `${ai.note} Likely Manufacturer: ${ai.likelyManufacturer}.`,
         metadata: {
-          licenseNumber: cleanLic,
-          status: "Expired",
-          lastInspectionDate: "14-Feb-2024"
+          licenseNumber: bisLicense.toUpperCase(),
+          likelyStatus: ai.likelyStatus,
+          confidence: ai.confidence,
+          source: bisResult.source
         }
       };
-      disqualificationReasons.push(`BIS License ${cleanLic} has expired or been revoked.`);
-    } else if (!isRecognizedIS && primaryISNum.length > 0) {
+      if (ai.likelyStatus === "SUSPECT") {
+        disqualificationReasons.push(`AI analysis flagged BIS License ${bisLicense} format as highly suspect.`);
+      }
+    } else {
       bisCheck = {
         id: "bis-portal",
         portalName: "Bureau of Indian Standards (manakonline.in)",
         category: "REGULATORY",
         status: "SUSPECT",
-        headline: "Standard Not Found in Official Registry",
-        details: `${standardClaimed} does not match any current active Indian Standard schedule published by BIS.`,
-        metadata: {
-          claimedStandard: standardClaimed
-        }
+        headline: "Unverifiable BIS License",
+        details: "License could not be found in local registry and live scraping failed.",
+        metadata: { licenseNumber: bisLicense.toUpperCase() }
       };
-      disqualificationReasons.push(`Claimed standard ${standardClaimed} is not recognized by BIS.`);
-    } else {
-      // Verified format
-      const isCML = cleanLic.startsWith("CM/L") || /^\d{7,10}$/.test(cleanLic);
-      bisCheck = {
-        id: "bis-portal",
-        portalName: "Bureau of Indian Standards (manakonline.in)",
-        category: "REGULATORY",
-        status: "VERIFIED",
-        headline: `Valid BIS ${isCML ? "ISI Mark Scheme-I" : "CRS"} Certificate Active`,
-        details: `License ${cleanLic} authenticated for ${cleanStd}. Active until 31-Dec-2027. Factory audit passed with Grade A.`,
-        metadata: {
-          licenseNumber: cleanLic,
-          standard: cleanStd,
-          validity: "Active until 31-Dec-2027",
-          testingLaboratory: "Central Laboratory BIS, Sahibabad"
-        }
-      };
+      advisoryNotes.push("Manual verification of BIS license recommended.");
     }
     checks.push(bisCheck);
 
     // 2. GSTN & Tax Integrity Verification
-    const cleanGST = gstin.trim().toUpperCase();
-    const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    const gstCheckResult = await verifyGSTINLive(gstin);
     let gstCheck: PortalCheckResult;
 
-    if (!cleanGST) {
+    if (!gstin.trim()) {
       gstCheck = {
         id: "gstn-portal",
         portalName: "GSTN Common Portal (gst.gov.in)",
@@ -203,55 +147,71 @@ export async function POST(request: Request) {
         details: "Bidder must furnish active GSTIN to claim commercial evaluation and ITC eligibility."
       };
       advisoryNotes.push("GSTIN missing - mandatory before final commercial envelope opening.");
-    } else if (!gstRegex.test(cleanGST) && cleanGST.length !== 15) {
+    } else if (!gstCheckResult.isValid) {
       gstCheck = {
         id: "gstn-portal",
         portalName: "GSTN Common Portal (gst.gov.in)",
         category: "TAXATION",
         status: "SUSPECT",
-        headline: "Invalid GSTIN Checksum Format",
-        details: `GSTIN "${cleanGST}" fails standard 15-character statutory alphanumeric format.`,
-        metadata: { submittedGSTIN: cleanGST }
+        headline: "Invalid GSTIN Format",
+        details: gstCheckResult.formatError || "Invalid GSTIN.",
+        metadata: { submittedGSTIN: gstin }
       };
       disqualificationReasons.push("Invalid GSTIN format submitted.");
     } else {
+      // Valid GSTIN format, let's check state match if we have factory address
+      let gstinStatus: PortalCheckResult["status"] = "VERIFIED";
+      let gstinDetails = `Entity active in ${gstCheckResult.stateName} (State Code ${gstCheckResult.stateCode}).`;
+      
+      if (gstCheckResult.liveData) {
+        gstinDetails += ` Registered to: ${gstCheckResult.liveData.legalName}. Status: ${gstCheckResult.liveData.status}.`;
+      }
+
+      if (bisResult.license && bisResult.license.factoryAddress) {
+        const stateMatch = checkGSTINStateMatch(gstin, bisResult.license.factoryAddress);
+        if (!stateMatch.matches) {
+          gstinStatus = "WARNING";
+          gstinDetails += ` GSTIN state (${stateMatch.gstinState}) does not match BIS factory state (${stateMatch.factoryState}). Ensure e-way bills are reconciled.`;
+          advisoryNotes.push("GSTIN state code mismatch with BIS factory location. Cross-verify supply chain logistics.");
+        }
+      }
+
       gstCheck = {
         id: "gstn-portal",
         portalName: "GSTN Common Portal (gst.gov.in)",
         category: "TAXATION",
-        status: "VERIFIED",
-        headline: "GSTIN Active & Monthly Returns Compliant",
-        details: `Entity active in state code ${cleanGST.substring(0, 2)}. GSTR-1 & GSTR-3B filings up-to-date for Q1 & Q2 FY26.`,
+        status: gstinStatus,
+        headline: gstinStatus === "VERIFIED" ? "GSTIN Active" : "GSTIN State / Factory Location Mismatch",
+        details: gstinDetails,
         metadata: {
-          gstin: cleanGST,
-          status: "ACTIVE",
-          taxpayerType: "Regular",
-          filingRegularity: "100% Compliant"
+          gstin: gstCheckResult.gstin,
+          state: gstCheckResult.stateName,
+          status: gstCheckResult.liveData?.status || "ACTIVE"
         }
       };
     }
     checks.push(gstCheck);
 
     // 3. CPPP Central Public Procurement Debarment Check
-    const cleanVendor = vendorName.trim().toLowerCase();
-    const isBlacklisted = CPPP_BLACKLISTED_KEYWORDS.some((kw) => cleanVendor.includes(kw));
-
+    const debarmentHits = searchDebarmentList(vendorName);
+    
     let cpppCheck: PortalCheckResult;
-    if (isBlacklisted) {
+    if (debarmentHits.length > 0) {
+      const hit = debarmentHits[0];
       cpppCheck = {
         id: "cppp-debarment",
         portalName: "Central Public Procurement Portal (eprocure.gov.in)",
         category: "INTEGRITY",
         status: "DISQUALIFIED",
         headline: "Debarred / Blacklisted on CPPP National Registry",
-        details: `Entity "${vendorName}" matches debarred supplier records under GFR Rule 151(iii) for non-performance or fraudulent submissions.`,
+        details: `Entity matches debarred supplier records: ${hit.reason}`,
         metadata: {
-          debarmentOrder: "DoE/Proc/Debar/2024/098",
-          period: "24 Months Debarment (Active)",
-          issuingAuthority: "Ministry of Finance"
+          debarmentOrder: hit.debarmentOrderNo,
+          period: hit.debarmentPeriod,
+          issuingAuthority: hit.issuingAuthority
         }
       };
-      disqualificationReasons.push(`Entity is currently debarred on CPPP national registry under GFR Rule 151(iii).`);
+      disqualificationReasons.push(`Entity is currently debarred on CPPP national registry under GFR Rule 151(iii). Order: ${hit.debarmentOrderNo}`);
     } else {
       cpppCheck = {
         id: "cppp-debarment",
@@ -261,8 +221,6 @@ export async function POST(request: Request) {
         headline: "Clean Public Procurement Track Record",
         details: "No debarment, suspension, or adverse vigilance action found on Central Procurement Portal or GeM Incident Registry.",
         metadata: {
-          blacklistMatches: 0,
-          incidentCases: 0,
           status: "CLEAR"
         }
       };
@@ -272,6 +230,7 @@ export async function POST(request: Request) {
     // 4. GeM OEM Authorization & Seller Rating
     let oemCheck: PortalCheckResult;
     const cleanAuth = oemAuthorizationCode.trim();
+    const cleanVendor = vendorName.trim().toLowerCase();
 
     if (cleanAuth.includes("INVALID") || cleanAuth.includes("EXPIRED")) {
       oemCheck = {
@@ -320,10 +279,15 @@ export async function POST(request: Request) {
     const localContent = Number(localContentPercent) || 0;
     let miiCategory = "Non-Local (< 20%)";
     let miiStatus: "VERIFIED" | "WARNING" | "DISQUALIFIED" = "VERIFIED";
+    
+    const requiresStatutoryAuditor = localContent >= 50 && (cleanVendor.includes("ltd") || cleanVendor.includes("limited"));
 
     if (localContent >= 50) {
       miiCategory = "Class-I Local Supplier (>= 50%)";
-      miiStatus = "VERIFIED";
+      miiStatus = requiresStatutoryAuditor ? "WARNING" : "VERIFIED";
+      if (requiresStatutoryAuditor) {
+        advisoryNotes.push("For Class-I claim by a Company, a certificate from the statutory auditor is mandatory under DPIIT MII Order.");
+      }
     } else if (localContent >= 20) {
       miiCategory = "Class-II Local Supplier (20% - 49%)";
       miiStatus = "WARNING";
@@ -341,7 +305,7 @@ export async function POST(request: Request) {
       headline: `${miiCategory} · ${localContent}% Local Value Addition`,
       details: isMsme
         ? `Registered MSME (${udyamNumber || "UDYAM-MH-01-0098234"}). Eligible for statutory EMD exemption and tender document cost waiver.`
-        : "Standard Non-MSME Commercial Bidder. Full EMD deposit required prior to technical opening.",
+        : (requiresStatutoryAuditor ? "Standard Non-MSME. Statutory Auditor certificate required to substantiate >50% local content claim." : "Standard Non-MSME Commercial Bidder. Full EMD deposit required prior to technical opening."),
       metadata: {
         localContentPercent: `${localContent}%`,
         supplierClassification: miiCategory,
@@ -366,7 +330,7 @@ export async function POST(request: Request) {
 
     if (disqualificationReasons.length > 0) {
       overallStatus = "DISQUALIFIED";
-      complianceRating = isBlacklisted ? "BLACKLISTED" : "SUSPECT";
+      complianceRating = debarmentHits.length > 0 ? "BLACKLISTED" : "SUSPECT";
     } else if (advisoryNotes.length > 0 || score < 85) {
       overallStatus = "CONDITIONAL";
       complianceRating = "B";
@@ -376,7 +340,7 @@ export async function POST(request: Request) {
       complianceRating = "AA";
     }
 
-    const response: BidderVerificationResponse = {
+    let response: BidderVerificationResponse = {
       timestamp: new Date().toISOString(),
       bidNumber,
       vendorName: vendorName || "Submitted Bidder",
@@ -387,6 +351,10 @@ export async function POST(request: Request) {
       disqualificationReasons,
       advisoryNotes
     };
+
+    if (language && language.toLowerCase() !== 'english' && language.toLowerCase() !== 'en') {
+        response = await translateJSON(response, language);
+    }
 
     return NextResponse.json(response);
   } catch (error) {

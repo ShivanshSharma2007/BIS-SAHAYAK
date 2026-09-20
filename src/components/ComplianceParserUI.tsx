@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { SAMPLE_TEST_REPORTS, SampleTestReport } from "@/data/sampleTestReports";
 import { ComplianceParserResponse, ParsedClauseItem } from "@/app/api/parser/parse/route";
+import { useAppStore } from "@/store/useAppStore";
 
 // Extended realistic official test scenarios for quick inspection
 const REALISTIC_BIS_SCENARIOS = [
@@ -146,6 +147,9 @@ export default function ComplianceParserUI() {
   const [uploadedFileName, setUploadedFileName] = useState<string>("Havells_IS694_Official_NABL_Report.pdf");
   const [isScenarioDrawerOpen, setIsScenarioDrawerOpen] = useState<boolean>(false);
 
+  const { setActiveDrawer } = useAppStore();
+  const language = useAppStore(state => state.language);
+  const [activeTab, setActiveTab] = useState<"upload" | "report">("upload");
   const [isParsing, setIsParsing] = useState(false);
   const [parseResult, setParseResult] = useState<ComplianceParserResponse | null>(null);
   const [clauseFilter, setClauseFilter] = useState<"ALL" | "FAILED" | "PASSED">("ALL");
@@ -284,7 +288,8 @@ Sample submitted for verification under ${std.standardNumber}.`);
           standardId: selectedStandardId,
           reportText,
           uploadedFileName,
-          calculationMode
+          calculationMode,
+          language
         })
       });
 

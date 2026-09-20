@@ -1,12 +1,78 @@
 import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { LocalDB } from "@/lib/db";
+import { redis } from "@/lib/redis";
 
 const authOptions: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      checks: ["none"],
+    }),
     CredentialsProvider({
+      id: "otp",
+      name: "OTP",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        otp: { label: "OTP", type: "text" },
+        name: { label: "Name", type: "text" },
+        department: { label: "Department", type: "text" },
+        password: { label: "Password", type: "password" },
+        isSignUp: { label: "isSignUp", type: "text" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.otp) {
+          throw new Error("Missing email or OTP");
+        }
+
+        const redisKey = `otp:${credentials.email}`;
+        const storedOtp = await redis.get(redisKey);
+
+        if (!storedOtp || storedOtp !== credentials.otp) {
+          throw new Error("Invalid or expired OTP");
+        }
+
+        // OTP is valid, clear it from Redis
+        await redis.del(redisKey);
+
+        // Fetch user or create a temporary session user
+        let user = await LocalDB.findUserByEmail(credentials.email);
+        
+        if (credentials.isSignUp === 'true') {
+          if (user) {
+            throw new Error("User already exists with this email.");
+          }
+          const hashedPassword = credentials.password ? await bcrypt.hash(credentials.password, 10) : undefined;
+          const isAdmin = credentials.email.toLowerCase() === "shivansh.sharma9311@gmail.com";
+          user = await LocalDB.createUser({
+            name: credentials.name || credentials.email.split('@')[0],
+            email: credentials.email,
+            password: hashedPassword,
+            role: isAdmin ? "admin" : "user",
+            department: credentials.department || "General",
+          });
+        } else if (!user) {
+          // If they don't exist and are trying to sign in, we can either error out or auto-provision.
+          // Since the user wants a full registration form, we should error out on Sign In.
+          throw new Error("Account not found. Please create an account first.");
+        }
+        
+        const isAdmin = credentials.email.toLowerCase() === "shivansh.sharma9311@gmail.com";
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: isAdmin ? "admin" : user.role,
+          department: user.department,
+        };
+      },
+    }),
+    CredentialsProvider({
+      id: "credentials",
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -17,43 +83,40 @@ const authOptions: NextAuthOptions = {
           throw new Error("Missing email or password");
         }
         
+        const cleanEmail = credentials.email.trim().toLowerCase();
         // Fetch user from local JSON database
-        const user = await LocalDB.findUserByEmail(credentials.email);
+        const user = await LocalDB.findUserByEmail(cleanEmail);
         
-        if (user && user.password) {
-          // Validate password with bcrypt or demo_password
-          const isDemo = credentials.password === "demo_password" || credentials.password === "password" || credentials.password === "admin";
-          let isValidPassword = isDemo;
-          if (!isValidPassword) {
-            try {
-              isValidPassword = await bcrypt.compare(credentials.password, user.password);
-            } catch {
-              isValidPassword = false;
-            }
-          }
-          
-          if (!isValidPassword) {
-            throw new Error("Invalid email or password");
-          }
-          
-          // Return user data for NextAuth session
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            department: user.department
-          };
+        if (!user) {
+          throw new Error("Access Denied: No account found with this email. Please click Sign Up to register first.");
+        }
+
+        if (!user.password) {
+          throw new Error("This account does not have a password set. Please sign in with OTP.");
         }
         
-        // FALLBACK FOR DEMO: If user is not in the database, allow them to login anyway
-        // This ensures the user can test the login with their own personal gmail
+        // Validate password with bcrypt
+        let isValidPassword = false;
+        try {
+          isValidPassword = await bcrypt.compare(credentials.password, user.password);
+        } catch {
+          isValidPassword = false;
+        }
+        
+        if (!isValidPassword) {
+          throw new Error("Incorrect password. Please verify and try again.");
+        }
+        
+        const isAdmin = cleanEmail === "shivansh.sharma9311@gmail.com";
+        const role = isAdmin ? "admin" : user.role;
+        
+        // Return user data for NextAuth session
         return {
-          id: `dyn_${Date.now()}`,
-          name: credentials.email.split('@')[0],
-          email: credentials.email,
-          role: "user",
-          department: "General"
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: role,
+          department: user.department
         };
       }
     }),
@@ -66,13 +129,31 @@ const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET || "fallback_secret_for_dev_12345",
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        const cleanEmail = (user?.email || "").trim().toLowerCase();
+        const existingUser = await LocalDB.findUserByEmail(cleanEmail);
+        if (!existingUser) {
+          // Deny access if they have not signed up first
+          return "/login?error=NotRegistered";
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
+      // If user just logged in (via Google or OTP and it's not in DB, role might not be set yet)
       if (user) {
         // @ts-ignore
-        token.role = user.role;
+        token.role = user.role || "user";
         // @ts-ignore
-        token.department = user.department;
+        token.department = user.department || "General";
       }
+      
+      const cleanEmail = (token.email || "").trim().toLowerCase();
+      if (cleanEmail === "shivansh.sharma9311@gmail.com") {
+        token.role = "admin";
+      }
+      
       return token;
     },
     async session({ session, token }) {
@@ -90,3 +171,4 @@ const authOptions: NextAuthOptions = {
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import {
@@ -8,7 +8,7 @@ import {
   ScanText, MapPin, FileCheck, MessageSquare, Zap, Bell,
   ShieldCheck, User, Building2, Award, ExternalLink,
   CheckCircle2, AlertTriangle, RefreshCw, LogOut,
-  Info, Sparkles, X, ShieldAlert, FileText
+  Info, Sparkles, X, ShieldAlert, FileText, Lock
 } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { SUPPORTED_LANGUAGES, getTranslation } from "@/lib/i18n/translations";
@@ -41,35 +41,44 @@ export default function Header() {
 
   // Fetch notifications
   const fetchNotifications = async () => {
+    if (pathname === '/login' || pathname === '/') return;
     try {
       const res = await fetch("/api/notifications");
+      if (!res.ok) return;
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) return;
       const data = await res.json();
       if (data.success) {
         setNotifications(data.notifications);
         setUnreadCount(data.unreadCount);
       }
     } catch (e) {
-      console.error("Failed to fetch notifications", e);
+      console.warn("Notifications currently unavailable");
     }
   };
 
   // Fetch officer profile
   const fetchProfile = async () => {
+    if (pathname === '/login' || pathname === '/') return;
     try {
       const res = await fetch("/api/auth/profile");
+      if (!res.ok) return;
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) return;
       const data = await res.json();
       if (data.success) {
         setProfile(data.profile);
       }
     } catch (e) {
-      console.error("Failed to fetch profile", e);
+      console.warn("Profile currently unavailable");
     }
   };
 
   useEffect(() => {
+    if (pathname === '/login' || pathname === '/') return;
     fetchNotifications();
     fetchProfile();
-  }, []);
+  }, [pathname]);
 
   if (pathname === '/login' || pathname === '/') {
     return null;
@@ -138,12 +147,63 @@ export default function Header() {
     return true;
   });
 
+  // @ts-ignore
+  const userRole = session?.user?.department || "General";
+  
+  const roleToTabsMap: Record<string, string[]> = {
+    "Manufacturer": ["command-center", "scanner", "labs"],
+    "GovBidder": ["command-center", "audits"],
+    "QA": ["command-center", "scanner", "ai"],
+    "Consumer": ["command-center", "ai"]
+  };
+  
+  const isAdmin = session?.user?.email === "shivansh.sharma9311@gmail.com";
+  const allowedTabIds = isAdmin 
+    ? ["command-center", "scanner", "labs", "audits", "ai"]
+    : (roleToTabsMap[userRole] || ["command-center", "scanner", "labs", "audits", "ai"]);
+
+  const displayInfo = useMemo(() => {
+    if (isAdmin) {
+      return {
+        designation: "Super Administrator (SIH Evaluator)",
+        badge: "SYS/ADMIN/001"
+      };
+    }
+
+    let designation = profile?.designation || "User";
+    let badge = profile?.badgeNumber || "ID-PENDING";
+    
+    const emailStr = session?.user?.email || "default";
+    let hash = 0;
+    for (let i = 0; i < emailStr.length; i++) {
+      hash = (hash << 5) - hash + emailStr.charCodeAt(i);
+      hash |= 0;
+    }
+    const consistentNum = Math.abs(hash) % 9000 + 1000;
+
+    if (userRole === "Manufacturer") {
+      designation = "Registered Manufacturer";
+      badge = `MFG/2026/${consistentNum}`;
+    } else if (userRole === "GovBidder") {
+      designation = "Registered Government Bidder";
+      badge = `GEM/BID/${consistentNum}`;
+    } else if (userRole === "QA") {
+      designation = "Quality Assurance Officer";
+      badge = `QA/AUD/${consistentNum}`;
+    } else if (userRole === "Consumer") {
+      designation = "Verified Citizen / Consumer";
+      badge = `CTZ/${consistentNum}`;
+    }
+
+    return { designation, badge };
+  }, [userRole, session?.user?.email, profile, isAdmin]);
+
   const tabs = [
-    { id: "command-center", label: t.header.tabs.commandCenter, icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
-    { id: "scanner",        label: t.header.tabs.scanner,       icon: <ScanText className="w-3.5 h-3.5" /> },
-    { id: "labs",           label: t.header.tabs.labs,          icon: <MapPin className="w-3.5 h-3.5" /> },
-    { id: "audits",         label: t.header.tabs.audits,        icon: <FileCheck className="w-3.5 h-3.5" /> },
-    { id: "ai",             label: t.header.tabs.ai,            icon: <MessageSquare className="w-3.5 h-3.5" /> },
+    { id: "command-center", label: t.header.tabs.commandCenter, icon: <LayoutDashboard className="w-3.5 h-3.5" />, isLocked: !allowedTabIds.includes("command-center") },
+    { id: "scanner",        label: t.header.tabs.scanner,       icon: <ScanText className="w-3.5 h-3.5" />, isLocked: !allowedTabIds.includes("scanner") },
+    { id: "labs",           label: t.header.tabs.labs,          icon: <MapPin className="w-3.5 h-3.5" />, isLocked: !allowedTabIds.includes("labs") },
+    { id: "audits",         label: t.header.tabs.audits,        icon: <FileCheck className="w-3.5 h-3.5" />, isLocked: !allowedTabIds.includes("audits") },
+    { id: "ai",             label: t.header.tabs.ai,            icon: <MessageSquare className="w-3.5 h-3.5" />, isLocked: !allowedTabIds.includes("ai") },
   ];
 
   return (
@@ -438,8 +498,8 @@ export default function Header() {
                               ACTIVE
                             </span>
                           </div>
-                          <p className="text-[11px] text-blue-200 font-medium">{profile.designation}</p>
-                          <p className="text-[10px] font-mono text-amber-300 mt-0.5">ID: {profile.badgeNumber}</p>
+                          <p className="text-[11px] text-blue-200 font-medium">{displayInfo.designation}</p>
+                          <p className="text-[10px] font-mono text-amber-300 mt-0.5">ID: {displayInfo.badge}</p>
                         </div>
                       </div>
                       <button
@@ -450,15 +510,17 @@ export default function Header() {
                       </button>
                     </div>
 
-                    {/* Ministry info */}
+                    {/* Category info */}
                     <div className="mt-3 pt-2.5 border-t border-white/10 text-[10px] text-blue-100 flex items-center gap-1.5">
                       <Building2 className="w-3.5 h-3.5 text-[#FFB347] shrink-0" />
-                      <span className="truncate">{profile.department}</span>
+                      <span className="truncate">Category: {userRole}</span>
                     </div>
                   </div>
 
-                  {/* Statutory Clearance & Region */}
-                  <div className="px-4 py-2.5 bg-blue-50/60 border-b border-blue-100 flex items-center justify-between text-[11px]">
+                  {/* Statutory Clearance & Region (Internal Only) */}
+                  {userRole === "General" && (
+                    <>
+                    <div className="px-4 py-2.5 bg-blue-50/60 border-b border-blue-100 flex items-center justify-between text-[11px]">
                     <div className="flex items-center gap-1 text-blue-900 font-semibold">
                       <ShieldCheck className="w-3.5 h-3.5 text-blue-700" />
                       <span>{profile.clearanceLevel}</span>
@@ -534,6 +596,8 @@ export default function Header() {
                       })}
                     </div>
                   </div>
+                    </>
+                  )}
 
                   {/* Actions & Session info */}
                   <div className="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
@@ -578,17 +642,24 @@ export default function Header() {
             <button
               key={tab.id}
               onClick={() => {
+                if (tab.isLocked) {
+                  alert("This feature is locked for your category.");
+                  return;
+                }
                 if (tab.id === "ai") useAppStore.getState().setAssistantOpen(true);
                 else setActiveTab(tab.id);
               }}
               className={`relative flex items-center gap-1.5 px-4 text-[12.5px] font-semibold transition-colors cursor-pointer whitespace-nowrap border-b-2 ${
-                isActive
-                  ? "text-[#0C2461] border-[#0C2461]"
-                  : "text-slate-500 border-transparent hover:text-slate-800"
+                tab.isLocked 
+                  ? "text-slate-300 border-transparent cursor-not-allowed opacity-60" 
+                  : isActive
+                    ? "text-[#0C2461] border-[#0C2461]"
+                    : "text-slate-500 border-transparent hover:text-slate-800"
               }`}
             >
-              <span className={isActive ? "text-[#0C2461]" : "text-slate-400"}>{tab.icon}</span>
+              <span className={tab.isLocked ? "text-slate-300" : isActive ? "text-[#0C2461]" : "text-slate-400"}>{tab.icon}</span>
               {tab.label}
+              {tab.isLocked && <Lock className="w-3 h-3 ml-1 text-slate-300" />}
             </button>
           );
         })}

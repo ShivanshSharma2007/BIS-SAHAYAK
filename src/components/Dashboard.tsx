@@ -5,11 +5,12 @@ import {
   ScanText, FileSpreadsheet, ShieldCheck, MapPin, Network,
   FileCheck, Bell, TrendingUp, Activity, Mic, MicOff,
   AlertCircle, ArrowUpRight, Search, ChevronRight, CheckCircle2,
-  X, Loader2, Sparkles
+  X, Loader2, Sparkles, Lock
 } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { VoiceAssistantManager, POPULAR_VOICE_QUERIES } from "@/lib/speech";
 import { getTranslation } from "@/lib/i18n/translations";
+import { useSession } from "next-auth/react";
 
 /*
   BIS-inspired card palette
@@ -91,6 +92,9 @@ export default function Dashboard() {
   const setAssistantInitialPrompt = useAppStore((s) => s.setAssistantInitialPrompt);
   const language                  = useAppStore((s) => s.language);
   const t = getTranslation(language);
+  const { data: session } = useSession();
+  // @ts-ignore
+  const userRole = session?.user?.department || "General";
 
   const [stats, setStats]               = useState({ standardsCount: 634, activeLabsCount: 12, compliancePassRate: 94.2 });
   const [searchQuery, setSearchQuery]   = useState("");
@@ -183,9 +187,19 @@ export default function Dashboard() {
     setSearchQuery("");
   };
 
+  const roleToCardsMap: Record<string, string[]> = {
+    "Manufacturer": ["scanner", "labs", "navigator"],
+    "GovBidder": ["auditor"],
+    "QA": ["scanner", "parser", "navigator"],
+    "Consumer": ["fraud"]
+  };
+  
+  const allowedCardIds = roleToCardsMap[userRole] || CARDS_META.map(c => c.id);
+
   const cards = CARDS_META.map((m) => {
     const c = (t.dashboard.cards as any)[m.id];
-    return { ...m, title: c.title, description: c.description, stats: c.stats, btn: c.btn };
+    const isLocked = !allowedCardIds.includes(m.id);
+    return { ...m, title: c.title, description: c.description, stats: c.stats, btn: c.btn, isLocked };
   });
 
   return (
@@ -326,17 +340,27 @@ export default function Dashboard() {
               <div
                 key={card.id}
                 onClick={() => {
+                  if (card.isLocked) {
+                    alert("This feature is locked for your category.");
+                    return;
+                  }
                   if (card.id === 'labs') {
                     setSelectedStandardId(null);
                   }
                   setActiveDrawer(card.id);
                 }}
-                className="group bg-white rounded-2xl overflow-hidden cursor-pointer border border-slate-200 transition-all duration-200 hover:-translate-y-1"
+                className={`group bg-white rounded-2xl overflow-hidden border transition-all duration-200 ${
+                  card.isLocked 
+                    ? "cursor-not-allowed border-slate-200" 
+                    : "cursor-pointer border-slate-200 hover:-translate-y-1"
+                }`}
                 onMouseEnter={(e) => {
+                  if (card.isLocked) return;
                   (e.currentTarget as HTMLElement).style.boxShadow = `0 12px 32px ${card.glow}`;
                   (e.currentTarget as HTMLElement).style.borderColor = card.border;
                 }}
                 onMouseLeave={(e) => {
+                  if (card.isLocked) return;
                   (e.currentTarget as HTMLElement).style.boxShadow = "";
                   (e.currentTarget as HTMLElement).style.borderColor = "#e2e8f0";
                 }}
@@ -348,10 +372,15 @@ export default function Dashboard() {
                 >
                   {/* Icon badge */}
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm"
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm relative"
                     style={{ background: card.iconBg, backdropFilter: "blur(4px)" }}
                   >
                     <CardIcon id={card.id} />
+                    {card.isLocked && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-xl backdrop-blur-[2px]">
+                        <Lock className="w-5 h-5 text-white" />
+                      </div>
+                    )}
                   </div>
 
                   {/* Card illustration circular badge — perfectly frames the circle without square corners */}
@@ -390,10 +419,19 @@ export default function Dashboard() {
                     </span>
                     <button
                       type="button"
-                      className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3.5 py-1.5 rounded-lg text-white transition-all hover:opacity-90 shadow-sm shrink-0 cursor-pointer"
+                      disabled={card.isLocked}
+                      className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3.5 py-1.5 rounded-lg text-white transition-all shadow-sm shrink-0 ${card.isLocked ? "cursor-not-allowed" : "hover:opacity-90 cursor-pointer"}`}
                       style={{ background: `linear-gradient(135deg, ${card.from}, ${card.to})` }}
                     >
-                      {card.btn || "Open"} <ArrowUpRight className="w-3.5 h-3.5" />
+                      {card.isLocked ? (
+                        <>
+                          <Lock className="w-3.5 h-3.5" /> Locked
+                        </>
+                      ) : (
+                        <>
+                          {card.btn || "Open"} <ArrowUpRight className="w-3.5 h-3.5" />
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

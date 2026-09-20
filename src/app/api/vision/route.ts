@@ -71,7 +71,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { image } = body; // Base64 string
+    const { image, language } = body; // Base64 string
 
     if (!image) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 });
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
     // Prepare the base64 part
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
 
-    const candidateModels = ['gemini-3.7-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+    const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash'];
     let response: any = null;
     let lastError: any = null;
 
@@ -92,7 +92,9 @@ export async function POST(req: Request) {
             {
               role: 'user',
               parts: [
-                { text: "Analyze this image thoroughly. 1) Determine if it is a product rating plate, BIS label, product packaging, or technical specification label. If it's a person, selfie, landscape, animal, or non-product object, reject it (isValid: false) and explain why in reasoning. 2) If it IS a valid product, extract all visible technical specifications (brand, model, voltage, wattage, frequency, capacity, serial numbers, certifications, standard numbers) into 'extractedParameters'. 3) Identify the exact Indian Standard (IS Code) applicable under BIS guidelines, provide its full official title, the scheme type ('CRS' or 'Scheme-I (ISI Mark)'), and 3-4 mandatory compliance clauses." },
+                { text: `Analyze this image thoroughly. 1) Determine if it is a product rating plate, BIS label, product packaging, or technical specification label. If it's a person, selfie, landscape, animal, or non-product object, reject it (isValid: false) and explain why in reasoning. 2) If it IS a valid product, extract all visible technical specifications (brand, model, voltage, wattage, frequency, capacity, serial numbers, certifications, standard numbers) into 'extractedParameters'. 3) Identify the exact Indian Standard (IS Code) applicable under BIS guidelines, provide its full official title, the scheme type ('CRS' or 'Scheme-I (ISI Mark)'), and 3-4 mandatory compliance clauses.
+
+IMPORTANT: If the user's language is specified as "${language || 'English'}" and it is NOT English, you MUST translate the 'reasoning', 'matchedStandardTitle', 'mandatoryClauses.title', and 'extractedParameters.key' and 'extractedParameters.value' fields into ${language || 'English'} natively.` },
                 {
                   inlineData: {
                     data: base64Data,

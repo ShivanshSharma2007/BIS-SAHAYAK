@@ -7,6 +7,7 @@ import {
   Clock, FileText, Scale, Building2, Zap,
   ChevronDown, ChevronUp, Phone, Info
 } from "lucide-react";
+import { useAppStore } from "@/store/useAppStore";
 
 interface CategoryInfo {
   key: string;
@@ -97,6 +98,7 @@ export default function NavigatorUI() {
   const [step, setStep] = useState(1);
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const language = useAppStore(state => state.language);
 
   // Form state
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -158,6 +160,7 @@ export default function NavigatorUI() {
           targetAudience,
           businessScale,
           existingCertifications,
+          language,
         }),
       });
       const data = await res.json();

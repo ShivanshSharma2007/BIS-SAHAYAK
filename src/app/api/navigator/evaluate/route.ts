@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { evaluateScheme, PRODUCT_CATEGORIES } from "@/lib/backend/bisCertificationEngine";
 import { NavigatorAssessmentInputV2 } from "@/lib/backend/types";
+import { translateJSON } from "@/lib/gemini";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +14,7 @@ export async function POST(req: NextRequest) {
       targetAudience,
       businessScale,
       existingCertifications,
+      language,
     } = body;
 
     if (!category) {
@@ -33,7 +35,11 @@ export async function POST(req: NextRequest) {
         : existingCertifications ? [existingCertifications] : ["None"],
     };
 
-    const evaluation = evaluateScheme(input);
+    let evaluation = evaluateScheme(input);
+
+    if (language && language.toLowerCase() !== 'english' && language.toLowerCase() !== 'en') {
+      evaluation = await translateJSON(evaluation, language);
+    }
 
     return NextResponse.json({
       success: true,

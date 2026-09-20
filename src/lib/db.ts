@@ -11,7 +11,8 @@ export type User = {
   department?: string;
 };
 
-// Simulate a database connection by reading from the local JSON file
+import { supabase } from './supabaseClient';
+
 export class LocalDB {
   private static getFilePath() {
     return path.join(process.cwd(), 'src', 'data', 'users.json');
@@ -19,30 +20,88 @@ export class LocalDB {
 
   static async findUserByEmail(email: string): Promise<User | null> {
     try {
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', email)
+          .single();
+        if (!error && data) return data as User;
+      }
+      // Fallback
       const filePath = this.getFilePath();
+      if (!fs.existsSync(filePath)) return null;
       const fileContents = fs.readFileSync(filePath, 'utf8');
       const users: User[] = JSON.parse(fileContents);
-      const user = users.find((u) => u.email === email);
-      return user || null;
+      return users.find((u) => u.email === email) || null;
     } catch (error) {
-      console.error('Error reading local db:', error);
+      console.error('Error reading db:', error);
       return null;
     }
   }
 
   static async getUserById(id: string): Promise<User | null> {
     try {
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', id)
+          .single();
+        if (!error && data) {
+          const { password, ...userWithoutPassword } = data as User;
+          return userWithoutPassword;
+        }
+      }
+      // Fallback
       const filePath = this.getFilePath();
+      if (!fs.existsSync(filePath)) return null;
       const fileContents = fs.readFileSync(filePath, 'utf8');
       const users: User[] = JSON.parse(fileContents);
       const user = users.find((u) => u.id === id);
       if (!user) return null;
-      // Don't return password in generic queries
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     } catch (error) {
-      console.error('Error reading local db:', error);
+      console.error('Error reading db:', error);
       return null;
+    }
+  }
+
+  static async createUser(user: Omit<User, 'id'>): Promise<User> {
+    try {
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('users')
+          .insert([{ ...user }])
+          .select()
+          .single();
+        if (!error && data) return data as User;
+        if (error) {
+          console.warn('Supabase user insert failed, using local storage fallback:', error.message);
+        }
+      }
+      
+      // Fallback
+      const filePath = this.getFilePath();
+      let users: User[] = [];
+      if (fs.existsSync(filePath)) {
+        const fileContents = fs.readFileSync(filePath, 'utf8');
+        users = JSON.parse(fileContents);
+      }
+      
+      const newUser: User = {
+        ...user,
+        id: `u${Date.now()}`
+      };
+      
+      users.push(newUser);
+      fs.writeFileSync(filePath, JSON.stringify(users, null, 2), 'utf8');
+      
+      return newUser;
+    } catch (error) {
+      console.error('Error writing db:', error);
+      throw error;
     }
   }
 }

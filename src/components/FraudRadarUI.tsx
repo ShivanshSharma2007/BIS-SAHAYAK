@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ShieldCheck, ShieldAlert, CheckCircle, Search, AlertTriangle, Info, Clock, ArrowRight } from "lucide-react";
 import { officialISNumbers } from "../data/bisOfficialList";
+import { useAppStore } from "@/store/useAppStore";
 
 type SearchResult = {
   status: "valid" | "invalid" | "huid_valid" | "huid_invalid" | null;
@@ -23,6 +24,7 @@ export default function FraudRadarUI() {
   
   // New state for recent searches history
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const language = useAppStore(state => state.language);
 
   const handleVerify = async (queryOverride?: string) => {
     const queryToUse = (queryOverride || inputValue).trim();
@@ -39,7 +41,7 @@ export default function FraudRadarUI() {
       const res = await fetch("/api/fraud-radar/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: queryToUse })
+        body: JSON.stringify({ query: queryToUse, language })
       });
       const data = await res.json();
 

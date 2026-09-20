@@ -2,9 +2,9 @@ import { GoogleGenAI } from '@google/genai';
 
 // Ranked list of active Google Gemini models to automatically cascade through on quota exhaustion (429) or deprecation (404)
 export const CANDIDATE_GEMINI_MODELS = [
-  'gemini-3.7-flash',
-  'gemini-3.5-flash-lite',
-  'gemini-3.1-flash-lite'
+  'gemini-1.5-flash-8b',
+  'gemini-1.5-flash',
+  'gemini-1.5-pro'
 ];
 
 interface GenerateOptions {
@@ -184,5 +184,33 @@ Thank you for your inquiry regarding Indian regulatory standards and certificati
 *Tip: You can ask specific questions about standard numbers (e.g., IS 1293, IS 694, IS 16046), HUID hallmarking, GeM tender rules, or lab testing requirements.*`;
   } catch (e) {
     return null;
+  }
+}
+
+/**
+ * Translates a JSON object's string values into the target language.
+ */
+export async function translateJSON(data: any, targetLanguage: string): Promise<any> {
+  if (!targetLanguage || targetLanguage.toLowerCase() === 'english' || targetLanguage.toLowerCase() === 'en') {
+    return data;
+  }
+
+  try {
+    const prompt = `You are a professional translator. Translate all human-readable string values in the following JSON object into ${targetLanguage}. 
+DO NOT translate keys, URLs, standard numbers (like "IS 1293"), or IDs. Return ONLY the translated JSON object.
+
+JSON:
+${JSON.stringify(data, null, 2)}`;
+
+    const res = await generateGeminiWithCascade({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      responseMimeType: "application/json",
+    });
+
+    const rawJson = (res.text || "{}").replace(/```json/g, "").replace(/```/g, "").trim();
+    return JSON.parse(rawJson);
+  } catch (error) {
+    console.error("Translation failed, falling back to original:", error);
+    return data; // Fallback to english
   }
 }

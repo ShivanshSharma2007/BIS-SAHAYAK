@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { TenderClause } from "../tenders/route";
-import { generateGeminiWithCascade } from "@/lib/gemini";
+import { generateGeminiWithCascade, translateJSON } from "@/lib/gemini";
+import { resolveStandardThresholds, extractValueFromReport } from "@/data/standardThresholds";
 
 export interface ClauseAuditItem {
   clauseNumber: string;
@@ -34,7 +35,8 @@ export async function POST(req: NextRequest) {
       tender,
       vendorName = "Submitted Bidder",
       bidderReportText = "",
-      bidderClaimedSpecs = {}
+      bidderClaimedSpecs = {},
+      language = "english"
     } = body;
 
     if (!tender || !tender.clauses || tender.clauses.length === 0) {
@@ -46,11 +48,19 @@ export async function POST(req: NextRequest) {
 
     const apiKey = process.env.GEMINI_API_KEY;
 
+    // Retrieve numeric thresholds for the AI to use as ground truth
+    const thresholdData = resolveStandardThresholds(tender.mandatoryStandard);
+    let thresholdContext = "";
+    if (thresholdData) {
+      thresholdContext = `\n=== STRICT NUMERIC THRESHOLDS TO ENFORCE ===\n`;
+      thresholdData.thresholds.forEach(t => {
+        thresholdContext += `- ${t.clause}: ${t.displayName} must be ${t.direction === 'max' ? '<=' : '>='} ${t.threshold} ${t.unit}\n`;
+      });
+    }
+
     // Check if Gemini API is configured
     if (apiKey) {
       try {
-        const ai = new GoogleGenAI({ apiKey });
-
         const prompt = `You are an expert Government Procurement Technical Auditor for GeM (Government e-Marketplace, India) and BIS (Bureau of Indian Standards).
 Your duty is to conduct an authoritative, uncompromising clause-by-clause compliance audit comparing the Buyer's Tender Specifications against the Bidder's Submitted Lab Test Report and Technical Datasheet.
 
@@ -58,6 +68,7 @@ Your duty is to conduct an authoritative, uncompromising clause-by-clause compli
 Bid Number: ${tender.bidNumber}
 Tender Title: ${tender.title}
 Mandatory Indian Standard: ${tender.mandatoryStandard}
+${thresholdContext}
 
 === TENDER CLAUSES TO AUDIT ===
 ${JSON.stringify(tender.clauses, null, 2)}
@@ -75,8 +86,9 @@ ${bidderReportText || "No lab test report provided. Only generic claims submitte
 2. If the bidder test report shows a value that fails the Indian Standard threshold (e.g., conductor resistance higher than allowed limit, flammability test fail, temperature rise exceeding limit, missing safety shutter), strictly mark it "NON_COMPLIANT" with "HIGH" risk.
 3. If the value satisfies the requirement, mark "COMPLIANT" with "LOW" risk.
 4. If ambiguous or missing documentation, mark "PARTIAL" or "NOT_SPECIFIED".
-57. STRICT DOCUMENT INTEGRITY: If the submitted document/text is NOT an official technical test report (e.g. if the bidder submitted a recipe, invoice, resume, random non-technical text, or generic marketing flyer without laboratory test data for the required Indian Standard), you MUST strictly set "overallVerdict" to "TECHNICALLY_DISQUALIFIED", "technicalScore" to 0, set all clauses to "NOT_SPECIFIED" or "NON_COMPLIANT", and put "Submitted document is not a recognized BIS / NABL accredited technical test report" in "criticalDeficiencies".
-8. Respond ONLY with valid, raw JSON matching:
+5. STRICT DOCUMENT INTEGRITY: If the submitted document/text is NOT an official technical test report (e.g. if the bidder submitted a recipe, invoice, resume, random non-technical text, or generic marketing flyer without laboratory test data for the required Indian Standard), you MUST strictly set "overallVerdict" to "TECHNICALLY_DISQUALIFIED", "technicalScore" to 0, set all clauses to "NOT_SPECIFIED" or "NON_COMPLIANT", and put "Submitted document is not a recognized BIS / NABL accredited technical test report" in "criticalDeficiencies".
+6. FORGERY / MANIPULATION CHECK: If the report text contains contradictory statements, obviously manipulated numbers (e.g., impossible purity values like 105%), or if the test dates are explicitly older than 5 years, add a "criticalDeficiencies" warning about potential document manipulation or expired test validity, and reduce the technical score appropriately.
+7. Respond ONLY with valid, raw JSON matching:
 {
   "technicalScore": 88,
   "overallVerdict": "TECHNICALLY_QUALIFIED",
@@ -94,11 +106,9 @@ ${bidderReportText || "No lab test report provided. Only generic claims submitte
       "verdictNote": "Meets IS 8130 requirement."
     }
   ]
-}`;
+}
 
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("Gemini AI timeout (10s)")), 10000)
-        );
+IMPORTANT: If the user's language is specified as "${language || 'English'}" and it is NOT English, you MUST natively translate the following strings into ${language || 'English'}: "executiveSummary", "criticalDeficiencies", "clarificationNeeded", "title", "tenderRequirement", "bidderSubmittedValue", and "verdictNote".`;
 
         const geminiRes = await generateGeminiWithCascade({
           contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -130,7 +140,10 @@ ${bidderReportText || "No lab test report provided. Only generic claims submitte
     }
 
     // Fallback Rule-Based Evaluator
-    const result = generateRuleBasedAudit(tender, vendorName, bidderReportText, bidderClaimedSpecs);
+    let result = generateRuleBasedAudit(tender, vendorName, bidderReportText, bidderClaimedSpecs);
+    if (language && language.toLowerCase() !== 'english' && language.toLowerCase() !== 'en') {
+      result = await translateJSON(result, language);
+    }
     return NextResponse.json(result);
   } catch (error) {
     console.error("Clause audit handler error:", error);
@@ -153,15 +166,19 @@ function generateRuleBasedAudit(
   const criticalDeficiencies: string[] = [];
   const clarificationNeeded: string[] = [];
 
+  const thresholdData = resolveStandardThresholds(tender.mandatoryStandard);
+  
   // Check if document contains genuine technical laboratory test evidence
   const technicalKeywords = [
     "copper", "resistance", "insulation", "thickness", "voltage", "flame", "oxygen", "water", "immersion",
     "shutter", "socket", "temperature", "glow", "luminaire", "lumen", "inverter", "mppt", "efficiency",
-    "is 694", "is 1293", "is 16221", "is 10322", "nabl", "test report", "dielectric", "breakdown", "ohm", "conduct"
+    "is 694", "is 1293", "is 16221", "is 10322", "nabl", "test report", "dielectric", "breakdown", "ohm", "conduct",
+    "cylinder", "steel", "hydrostatic", "laptop", "battery", "lithium", "is 7285", "is 13252",
+    "passed", "compliant", "certified", "complies"
   ];
   const hasTechnicalEvidence = technicalKeywords.some((kw) => lowerReport.includes(kw));
 
-  if (!hasTechnicalEvidence || reportText.trim().length < 25) {
+  if (!hasTechnicalEvidence && reportText.trim().length < 25) {
     for (const clause of tender.clauses) {
       clauseAudits.push({
         clauseNumber: clause.clauseNumber,
@@ -201,21 +218,55 @@ function generateRuleBasedAudit(
     let submittedValue = "Submitted in compliance report";
     let verdictNote = "Verified against standard specification.";
 
-    // Detect negative terms or sub-standard mentions
-    if (lowerReport.includes("fail") || lowerReport.includes("sub-standard") || lowerReport.includes("exceeded") || lowerReport.includes("substandard") || lowerReport.includes("14.5") || lowerReport.includes("without shutter")) {
-      if (clause.clauseNumber.includes("5.2") || clause.clauseNumber.includes("7.1") || clause.clauseNumber.includes("8.1")) {
+    // Check specific thresholds if available
+    let hasSpecificThreshold = false;
+    if (thresholdData) {
+      const relatedThreshold = thresholdData.thresholds.find(t => clause.clauseNumber.includes(t.clause.split(' ')[1]));
+      
+      if (relatedThreshold) {
+        hasSpecificThreshold = true;
+        const val = extractValueFromReport(reportText, relatedThreshold);
+        
+        if (val !== null) {
+          submittedValue = `${val} ${relatedThreshold.unit}`;
+          let passed = false;
+          if (relatedThreshold.direction === "max" && val <= relatedThreshold.threshold) passed = true;
+          if (relatedThreshold.direction === "min" && val >= relatedThreshold.threshold) passed = true;
+          
+          if (passed) {
+            status = "COMPLIANT";
+            riskLevel = "LOW";
+            verdictNote = `Tested value ${val} meets requirement (${relatedThreshold.direction === 'max' ? '<=' : '>='} ${relatedThreshold.threshold}).`;
+          } else {
+            status = "NON_COMPLIANT";
+            riskLevel = "HIGH";
+            verdictNote = `Failed mandatory criteria in ${clause.standard}. Recorded deviation creates safety/operational risk.`;
+            criticalDeficiencies.push(`Non-compliance on ${clause.clauseNumber} (${clause.title}) - Expected ${relatedThreshold.direction === 'max' ? '<=' : '>='} ${relatedThreshold.threshold}, got ${val}.`);
+          }
+        } else {
+          status = "PARTIAL";
+          riskLevel = "MEDIUM";
+          submittedValue = "Value not found in report";
+          verdictNote = `Numeric value for ${relatedThreshold.displayName} could not be extracted from the report.`;
+          clarificationNeeded.push(`Submit clear numeric test result for ${clause.clauseNumber}.`);
+        }
+      }
+    }
+
+    if (!hasSpecificThreshold) {
+      if (lowerReport.includes("fail") || lowerReport.includes("sub-standard") || lowerReport.includes("exceeded") || lowerReport.includes("substandard") || lowerReport.includes("14.5") || lowerReport.includes("without shutter")) {
         status = "NON_COMPLIANT";
         riskLevel = "HIGH";
         submittedValue = "Test result failed standard threshold";
         verdictNote = `Failed mandatory criteria in ${clause.standard}. Recorded deviation creates safety/operational risk.`;
         criticalDeficiencies.push(`Non-compliance on ${clause.clauseNumber} (${clause.title}).`);
+      } else if (lowerReport.includes("not tested") || lowerReport.includes("pending")) {
+        status = "PARTIAL";
+        riskLevel = "MEDIUM";
+        submittedValue = "Test report pending / incomplete";
+        verdictNote = "Manufacturer has not provided accredited laboratory certificate for this specific clause.";
+        clarificationNeeded.push(`Submit NABL accredited report for ${clause.clauseNumber}.`);
       }
-    } else if (lowerReport.includes("not tested") || lowerReport.includes("pending")) {
-      status = "PARTIAL";
-      riskLevel = "MEDIUM";
-      submittedValue = "Test report pending / incomplete";
-      verdictNote = "Manufacturer has not provided accredited laboratory certificate for this specific clause.";
-      clarificationNeeded.push(`Submit NABL accredited report for ${clause.clauseNumber}.`);
     }
 
     if (status === "COMPLIANT") {

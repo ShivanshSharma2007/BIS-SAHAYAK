@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyIdentifier } from "@/lib/backend/db";
+import { translateJSON } from "@/lib/gemini";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const query = body.query?.trim();
+    const language = body.language;
 
     if (!query) {
       return NextResponse.json(
@@ -13,7 +15,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const verificationResult = await verifyIdentifier(query);
+    let verificationResult = await verifyIdentifier(query);
+    
+    // Translate the result if language is provided and not English
+    if (language && language.toLowerCase() !== 'english' && language.toLowerCase() !== 'en') {
+        verificationResult = await translateJSON(verificationResult, language);
+    }
 
     return NextResponse.json({
       success: true,

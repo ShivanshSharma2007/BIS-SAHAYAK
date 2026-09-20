@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { getStandardById, getStandards } from "@/lib/backend/db";
 import { resolveOfficialStandard } from "@/lib/backend/bisMasterCatalog";
-import { generateGeminiWithCascade } from "@/lib/gemini";
+import { generateGeminiWithCascade, translateJSON } from "@/lib/gemini";
 import { StandardItem, StandardClause } from "@/lib/backend/types";
 
 export interface ParsedClauseItem {
@@ -49,7 +49,7 @@ export interface ComplianceParserResponse {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { reportText, standardId, uploadedFileName, calculationMode } = body;
+    const { reportText, standardId, uploadedFileName, calculationMode, language } = body;
 
     if (!reportText || typeof reportText !== "string" || !reportText.trim()) {
       return NextResponse.json(
@@ -112,7 +112,8 @@ export async function POST(req: NextRequest) {
     // 2. If client requests strict numeric calculation or AI is disabled, run mathematical engine directly
     if (calculationMode === "strict_numeric") {
       const mathResult = runStatutoryMathematicalEngine(targetStandard, reportText);
-      return NextResponse.json(mathResult);
+      const translatedResult = await translateJSON(mathResult, language);
+      return NextResponse.json(translatedResult);
     }
 
     // 3. Cognitive AI Cascade Audit with 3500ms timeout race to ensure high responsiveness
@@ -162,7 +163,9 @@ Extract and return a strict JSON object matching this schema:
   ],
   "criticalDeficiencies": ["list of critical safety violations"],
   "remediationGuidance": ["actionable engineering remedies aligned with BIS code of practice"]
-}`;
+}
+
+IMPORTANT: If the user's language is specified as "${language || 'English'}" and it is NOT English, you MUST translate 'clauseTitle', 'specifiedRequirement', 'observedValue', 'notes', 'criticalDeficiencies', and 'remediationGuidance' into ${language || 'English'} natively.`;
 
       // Race Gemini cascade with a 3500ms timeout for instant user responsiveness
       const timeoutPromise = new Promise<null>((resolve) =>
@@ -245,7 +248,8 @@ Extract and return a strict JSON object matching this schema:
 
     // 4. Default Fallback: Statutory Mathematical Engine
     const mathematicalResult = runStatutoryMathematicalEngine(targetStandard, reportText);
-    return NextResponse.json(mathematicalResult);
+    const translatedMathResult = await translateJSON(mathematicalResult, language);
+    return NextResponse.json(translatedMathResult);
 
   } catch (err: any) {
     console.error("[Compliance Parser] Top-level handler error:", err);

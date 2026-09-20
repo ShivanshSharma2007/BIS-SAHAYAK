@@ -17,6 +17,7 @@ export default function SnapScannerUI() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const setActiveDrawer = useAppStore(state => state.setActiveDrawer);
   const setSelectedStandardId = useAppStore(state => state.setSelectedStandardId);
+  const language = useAppStore(state => state.language);
   
   const [clauseStatus, setClauseStatus] = useState<Record<string, boolean>>({});
 
@@ -90,8 +91,8 @@ export default function SnapScannerUI() {
           let width = img.width;
           let height = img.height;
           
-          // Max dimension 1200px to ensure base64 is well under Vercel's 4.5MB limit
-          const maxDim = 1200;
+          // Max dimension 800px to ensure fast upload and processing
+          const maxDim = 800;
           if (width > maxDim || height > maxDim) {
             if (width > height) {
               height = Math.round((height * maxDim) / width);
@@ -146,7 +147,7 @@ export default function SnapScannerUI() {
       const response = await fetch('/api/vision', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: base64Image })
+        body: JSON.stringify({ image: base64Image, language })
       });
 
       if (!response.ok) {

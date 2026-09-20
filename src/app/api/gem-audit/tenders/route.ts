@@ -240,6 +240,96 @@ const sampleTenders: GeMTender[] = [
         criticality: "CRITICAL"
       }
     ]
+  },
+  {
+    id: "gem-tender-05",
+    bidNumber: "GEM/2026/B/229041",
+    title: "Medical Grade Seamless Steel Oxygen Cylinders (D Type)",
+    category: "Medical Gases & Equipment",
+    buyer: {
+      name: "AIIMS New Delhi",
+      department: "Ministry of Health and Family Welfare",
+      location: "New Delhi"
+    },
+    value: "₹ 1,45,00,000",
+    valueNumeric: 14500000,
+    publishedDate: "10 Sep 2026",
+    closingDate: "25 Oct 2026",
+    mandatoryStandard: "IS 7285 (Part 2):2017",
+    requiredCertifications: ["PESO Approval", "BIS ISI Mark (Scheme-I)"],
+    localContentRequired: 50,
+    emdAmount: "₹ 2,90,000",
+    msmeExempt: true,
+    sampleTestRequired: true,
+    description: "High pressure seamless steel cylinders for medical oxygen storage, water capacity 46.7 Liters.",
+    clauses: [
+      {
+        clauseNumber: "Clause 5.1",
+        title: "Material Chemical Composition",
+        requirement: "Steel must have Maximum Carbon 0.40%, Maximum Sulphur 0.040%, Maximum Phosphorus 0.040%.",
+        standard: "IS 7285 (Part 2)",
+        criticality: "CRITICAL"
+      },
+      {
+        clauseNumber: "Clause 7.2",
+        title: "Hydrostatic Stretch Test",
+        requirement: "Cylinder must withstand hydrostatic test pressure of 250 kgf/cm² without permanent volumetric expansion exceeding 10%.",
+        standard: "IS 7285 (Part 2) / IS 5844",
+        criticality: "CRITICAL"
+      },
+      {
+        clauseNumber: "Clause 8.1",
+        title: "Wall Thickness",
+        requirement: "Minimum calculated wall thickness shall not be less than 5.2 mm.",
+        standard: "IS 7285 (Part 2)",
+        criticality: "MAJOR"
+      }
+    ]
+  },
+  {
+    id: "gem-tender-06",
+    bidNumber: "GEM/2026/B/338902",
+    title: "Enterprise Grade Laptops for Government Schools",
+    category: "IT Hardware",
+    buyer: {
+      name: "Kendriya Vidyalaya Sangathan",
+      department: "Ministry of Education",
+      location: "Multiple Locations"
+    },
+    value: "₹ 5,80,00,000",
+    valueNumeric: 58000000,
+    publishedDate: "15 Sep 2026",
+    closingDate: "10 Nov 2026",
+    mandatoryStandard: "IS 13252 (Part 1):2010",
+    requiredCertifications: ["BIS CRS", "BEE Star Rating (Min 4 Star)", "RoHS"],
+    localContentRequired: 50,
+    emdAmount: "₹ 11,60,000",
+    msmeExempt: false,
+    sampleTestRequired: false,
+    description: "Intel Core i5 / AMD Ryzen 5 based laptops with 16GB RAM, 512GB SSD, pre-loaded with BOSS Linux / Windows 11 Pro.",
+    clauses: [
+      {
+        clauseNumber: "Clause 1.5.1",
+        title: "Protection Against Electric Shock",
+        requirement: "Equipment shall be constructed such that there is adequate protection against contact with bare parts at hazardous voltages.",
+        standard: "IS 13252 (Part 1)",
+        criticality: "CRITICAL"
+      },
+      {
+        clauseNumber: "Clause 4.3.8",
+        title: "Battery Safety (IS 16046)",
+        requirement: "Lithium-ion battery packs must be separately BIS certified under IS 16046 (Part 2) and withstand thermal abuse test.",
+        standard: "IS 13252 (Pt 1) / IS 16046",
+        criticality: "CRITICAL"
+      },
+      {
+        clauseNumber: "Clause 5.1",
+        title: "Touch Current",
+        requirement: "Touch current for Class I equipment must not exceed 3.5 mA.",
+        standard: "IS 13252 (Part 1)",
+        criticality: "MAJOR"
+      }
+    ]
   }
 ];
 
@@ -273,4 +363,67 @@ export async function GET(request: Request) {
     total: filtered.length,
     tenders: filtered
   });
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { bidNumber, manualTitle, manualSpecs, manualStandard, generateClauses } = body;
+
+    // Use dynamic scraper + AI resolver
+    const { resolveTender } = await import("@/lib/scrapers/gemScraper");
+    
+    // Check if we should fallback to sample tenders first for known IDs
+    if (bidNumber && !generateClauses && !manualSpecs) {
+      const existing = sampleTenders.find(
+        (t) => t.bidNumber.toLowerCase() === bidNumber.toLowerCase() || t.id === bidNumber
+      );
+      if (existing) {
+        return NextResponse.json({ tender: existing });
+      }
+    }
+
+    const resolved = await resolveTender({
+      bidNumber,
+      manualTitle,
+      manualSpecs,
+      manualStandard
+    });
+
+    // Format to match GeMTender structure
+    const tender: GeMTender = {
+      id: `gem-tender-dynamic-${Date.now()}`,
+      bidNumber: resolved.bidNumber,
+      title: resolved.title,
+      category: "Custom Category",
+      buyer: {
+        name: resolved.buyerName,
+        department: resolved.department,
+        location: "India"
+      },
+      value: "₹ Unknown",
+      valueNumeric: 0,
+      publishedDate: new Date().toISOString().split("T")[0],
+      closingDate: resolved.closingDate || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      mandatoryStandard: resolved.mandatoryStandard,
+      requiredCertifications: ["BIS Certification", "OEM Authorization"],
+      localContentRequired: 50,
+      emdAmount: "₹ Unknown",
+      msmeExempt: true,
+      sampleTestRequired: true,
+      description: "Dynamically resolved tender specification",
+      clauses: resolved.clauses.map(c => ({
+        ...c,
+        criticality: (c as any).criticality || "MAJOR"
+      }))
+    };
+
+    return NextResponse.json({ tender, source: resolved.source });
+  } catch (error) {
+    console.error("Tender resolution failed:", error);
+    return NextResponse.json(
+      { error: "Failed to resolve tender details" },
+      { status: 500 }
+    );
+  }
 }
