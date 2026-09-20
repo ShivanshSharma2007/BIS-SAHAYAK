@@ -167,13 +167,15 @@ Return ONLY valid JSON in this format:
         clauseNumber: "General 1.1",
         title: "Mandatory Certification",
         requirement: `Product must be certified under ${expectedStandard}`,
-        standard: expectedStandard
+        standard: expectedStandard,
+        criticality: "CRITICAL"
       },
       {
         clauseNumber: "General 1.2",
         title: "Quality Conformance",
         requirement: "Valid NABL accredited laboratory test report required",
-        standard: expectedStandard
+        standard: expectedStandard,
+        criticality: "MAJOR"
       }
     ];
   }

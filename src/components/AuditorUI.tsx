@@ -95,7 +95,7 @@ export default function AuditorUI() {
   }, []);
 
   // Quick Preset Scenarios
-  const selectScenario = (type: "compliant" | "substandard" | "msme" | "suspended" | "scopemismatch") => {
+  const selectScenario = (type: "compliant" | "substandard" | "msme" | "suspended" | "scopemismatch" | "custom") => {
     setActiveScenario(type);
     setShowCustomInputs(false);
 
