@@ -46,5 +46,21 @@
     "role": "user",
     "department": "Consumer",
     "id": "u1789900876072"
+  },
+  {
+    "name": "paavni sharma",
+    "email": "ps2705971@gmail.com",
+    "password": "$2b$10$vsrLe83wLtIfGmJVbyz9Yu5RVAO6pernTX3ksbtLst0Ti5rPhkr5m",
+    "role": "user",
+    "department": "Consumer",
+    "id": "u1789919642757"
+  },
+  {
+    "name": "Yusuf Khan",
+    "email": "khanyusuf2006@gmail.com",
+    "password": "$2b$10$YJX1qx11Gd7K31E3dEM2ou2HFWNZBbkFMBlBTem6DHW1OkoQXWPeq",
+    "role": "admin",
+    "department": "Compliance",
+    "id": "u1789920000000"
   }
 ]

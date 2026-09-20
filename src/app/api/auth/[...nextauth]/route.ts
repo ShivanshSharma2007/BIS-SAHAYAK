@@ -47,7 +47,8 @@ const authOptions: NextAuthOptions = {
             throw new Error("User already exists with this email.");
           }
           const hashedPassword = credentials.password ? await bcrypt.hash(credentials.password, 10) : undefined;
-          const isAdmin = credentials.email.toLowerCase() === "shivansh.sharma9311@gmail.com";
+          const adminEmails = ["shivansh.sharma9311@gmail.com", "khanyusuf2006@gmail.com"];
+          const isAdmin = adminEmails.includes(credentials.email.toLowerCase());
           user = await LocalDB.createUser({
             name: credentials.name || credentials.email.split('@')[0],
             email: credentials.email,
@@ -61,7 +62,8 @@ const authOptions: NextAuthOptions = {
           throw new Error("Account not found. Please create an account first.");
         }
         
-        const isAdmin = credentials.email.toLowerCase() === "shivansh.sharma9311@gmail.com";
+        const adminEmails = ["shivansh.sharma9311@gmail.com", "khanyusuf2006@gmail.com"];
+        const isAdmin = adminEmails.includes(credentials.email.toLowerCase());
         return {
           id: user.id,
           name: user.name,
@@ -107,7 +109,8 @@ const authOptions: NextAuthOptions = {
           throw new Error("Incorrect password. Please verify and try again.");
         }
         
-        const isAdmin = cleanEmail === "shivansh.sharma9311@gmail.com";
+        const adminEmails = ["shivansh.sharma9311@gmail.com", "khanyusuf2006@gmail.com"];
+        const isAdmin = adminEmails.includes(cleanEmail);
         const role = isAdmin ? "admin" : user.role;
         
         // Return user data for NextAuth session
@@ -150,7 +153,8 @@ const authOptions: NextAuthOptions = {
       }
       
       const cleanEmail = (token.email || "").trim().toLowerCase();
-      if (cleanEmail === "shivansh.sharma9311@gmail.com") {
+      const adminEmails = ["shivansh.sharma9311@gmail.com", "khanyusuf2006@gmail.com"];
+      if (adminEmails.includes(cleanEmail)) {
         token.role = "admin";
       }
       
