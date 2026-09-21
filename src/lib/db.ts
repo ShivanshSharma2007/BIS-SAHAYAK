@@ -15,7 +15,25 @@ import { supabase } from './supabaseClient';
 
 export class LocalDB {
   private static getFilePath() {
+    if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+      return path.join('/tmp', 'users.json');
+    }
     return path.join(process.cwd(), 'src', 'data', 'users.json');
+  }
+
+  private static getUsers(): User[] {
+    let filePath = this.getFilePath();
+    let users: User[] = [];
+    if (fs.existsSync(filePath)) {
+      users = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    } else if (filePath.includes('tmp')) {
+      // Load initial from static if tmp doesn't exist
+      const staticPath = path.join(process.cwd(), 'src', 'data', 'users.json');
+      if (fs.existsSync(staticPath)) {
+        users = JSON.parse(fs.readFileSync(staticPath, 'utf8'));
+      }
+    }
+    return users;
   }
 
   static async findUserByEmail(email: string): Promise<User | null> {
@@ -29,10 +47,7 @@ export class LocalDB {
         if (!error && data) return data as User;
       }
       // Fallback
-      const filePath = this.getFilePath();
-      if (!fs.existsSync(filePath)) return null;
-      const fileContents = fs.readFileSync(filePath, 'utf8');
-      const users: User[] = JSON.parse(fileContents);
+      const users = this.getUsers();
       return users.find((u) => u.email === email) || null;
     } catch (error) {
       console.error('Error reading db:', error);
@@ -54,10 +69,7 @@ export class LocalDB {
         }
       }
       // Fallback
-      const filePath = this.getFilePath();
-      if (!fs.existsSync(filePath)) return null;
-      const fileContents = fs.readFileSync(filePath, 'utf8');
-      const users: User[] = JSON.parse(fileContents);
+      const users = this.getUsers();
       const user = users.find((u) => u.id === id);
       if (!user) return null;
       const { password, ...userWithoutPassword } = user;
@@ -83,12 +95,7 @@ export class LocalDB {
       }
       
       // Fallback
-      const filePath = this.getFilePath();
-      let users: User[] = [];
-      if (fs.existsSync(filePath)) {
-        const fileContents = fs.readFileSync(filePath, 'utf8');
-        users = JSON.parse(fileContents);
-      }
+      const users = this.getUsers();
       
       const newUser: User = {
         ...user,
@@ -96,7 +103,11 @@ export class LocalDB {
       };
       
       users.push(newUser);
-      fs.writeFileSync(filePath, JSON.stringify(users, null, 2), 'utf8');
+      try {
+        fs.writeFileSync(this.getFilePath(), JSON.stringify(users, null, 2), 'utf8');
+      } catch (err: any) {
+        console.warn('Could not write to users.json (might be read-only file system).', err.message);
+      }
       
       return newUser;
     } catch (error) {
