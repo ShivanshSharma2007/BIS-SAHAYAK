@@ -33,11 +33,16 @@ export async function POST(req: NextRequest) {
     const redisKey = `otp:${cleanEmail}`;
     await redis.setex(redisKey, 300, otp);
 
+    const gmailUser = (process.env.GMAIL_USER || "").trim();
+    const gmailPass = (process.env.GMAIL_PASS || "").trim();
+
     const hasValidGmail =
-      process.env.GMAIL_USER &&
-      process.env.GMAIL_PASS &&
-      !process.env.GMAIL_USER.includes("your-email") &&
-      !process.env.GMAIL_PASS.includes("your-app-password");
+      gmailUser &&
+      gmailPass &&
+      !gmailUser.includes("your-email") &&
+      !gmailPass.includes("your-app-password");
+
+    let emailSent = false;
 
     if (hasValidGmail) {
       try {
@@ -45,13 +50,13 @@ export async function POST(req: NextRequest) {
         const transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
-            user: process.env.GMAIL_USER,
-            pass: process.env.GMAIL_PASS,
+            user: gmailUser,
+            pass: gmailPass,
           },
         });
 
         const mailOptions = {
-          from: `"BIS Sahayak" <${process.env.GMAIL_USER}>`,
+          from: `"BIS Sahayak" <${gmailUser}>`,
           to: email,
           subject: 'Your BIS Sahayak OTP Code',
           text: `Your OTP code is: ${otp}. It is valid for 5 minutes.`,
@@ -71,6 +76,8 @@ export async function POST(req: NextRequest) {
         };
 
         await transporter.sendMail(mailOptions);
+        emailSent = true;
+        console.log(`[MAIL] Successfully delivered OTP to ${email}`);
       } catch (mailErr) {
         console.warn("[MAIL] Failed to send via Gmail, falling back to local OTP:", mailErr);
       }
@@ -80,8 +87,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ 
       success: true, 
-      message: "OTP sent successfully",
-      devOtp: hasValidGmail ? undefined : otp 
+      message: emailSent ? "OTP sent to your email" : "OTP sent successfully",
+      devOtp: emailSent ? undefined : otp 
     });
   } catch (error) {
     console.error("Error sending OTP:", error);
