@@ -34,6 +34,7 @@ import { GeMTender } from "@/app/api/gem-audit/tenders/route";
 import { BidderVerificationResponse, PortalCheckResult } from "@/app/api/gem-audit/verify-bidder/route";
 import { TechnicalAuditResult, ClauseAuditItem } from "@/app/api/gem-audit/clause-audit/route";
 import { useAppStore } from "@/store/useAppStore";
+import { resolveStandardThresholds } from "@/data/standardThresholds";
 
 export default function AuditorUI() {
   const language = useAppStore(state => state.language);
@@ -94,48 +95,67 @@ export default function AuditorUI() {
     loadTenders();
   }, []);
 
+  const generateReportText = (type: "compliant" | "substandard" | "msme", standard: string) => {
+    const thresholdData = resolveStandardThresholds(standard);
+    if (!thresholdData) {
+      if (type === "compliant" || type === "msme") {
+        return "Tested all clauses and completely PASSED. Valid test report provided.";
+      } else {
+        return "Tested clauses FAILED to meet standard limit. Sub-standard material used.";
+      }
+    }
+
+    let report = "Official test report observations: ";
+    thresholdData.thresholds.forEach(t => {
+      let val;
+      if (type === "compliant" || type === "msme") {
+        // Generate passing value
+        val = t.direction === "max" ? t.threshold * 0.9 : t.threshold * 1.1;
+      } else {
+        // Generate failing value
+        val = t.direction === "max" ? t.threshold * 1.2 : t.threshold * 0.8;
+      }
+      // Formatting the number nicely
+      const formattedVal = val.toFixed(1).replace(/\.0$/, '');
+      report += `For ${t.displayName}, value measured is ${formattedVal} ${t.unit}. `;
+    });
+    return report;
+  };
+
   // Quick Preset Scenarios
   const selectScenario = (type: "compliant" | "substandard" | "msme" | "suspended" | "scopemismatch" | "custom") => {
     setActiveScenario(type);
     setShowCustomInputs(false);
+    
+    const standard = selectedTender?.mandatoryStandard || "IS 694:2010";
 
     if (type === "compliant") {
       setVendorName(selectedTender?.bidNumber === "GEM/2026/B/849201" ? "Havells India Limited" : "Verified Premium OEM Ltd");
       setGstin("07AAACH1234H1Z5");
       setBisLicense("CM/L-8492015");
-      setStandardClaimed(selectedTender?.mandatoryStandard || "IS 694:2010");
+      setStandardClaimed(standard);
       setOemAuthCode("OEM-AUTH-992");
       setLocalContent(65);
       setIsMsme(false);
       setUdyamNumber("");
       setUploadedFileName("Official_NABL_Report.pdf");
-      
-      const dynamicReport = selectedTender?.clauses
-        ? selectedTender.clauses.map(c => `Tested for ${c.title}: ${c.requirement} - PASSED.`).join(" ")
-        : "High purity electrolytic annealed copper conductor purity tested at 99.94%. Conductor electrical resistance measured at 11.8 ohm/km at 20 deg C. Nominal radial insulation thickness 0.72 mm, minimum 0.58 mm. Oxygen index 31.2%. Withstood 3.0 kV AC RMS water immersion test for 5 minutes without breakdown.";
-      
-      setReportText(dynamicReport);
+      setReportText(generateReportText("compliant", standard));
     } else if (type === "substandard") {
       setVendorName("ShoddyTech Cables & Wires Corp");
       setGstin("06AAACF9999Z1Z0");
       setBisLicense("CM/L-EXPIRED-2023");
-      setStandardClaimed(selectedTender?.mandatoryStandard || "IS 694:2010");
+      setStandardClaimed(standard);
       setOemAuthCode("INVALID-AUTH-00");
       setLocalContent(18); // Fails Class-I/II
       setIsMsme(false);
       setUdyamNumber("");
       setUploadedFileName("ShoddyTech_Datasheet_Draft.pdf");
-      
-      const dynamicReport = selectedTender?.clauses
-        ? selectedTender.clauses.map((c, idx) => idx === 0 ? `Tested for ${c.title}: FAILED to meet standard limit.` : `Tested for ${c.title}: ${c.requirement} - PASSED.`).join(" ")
-        : "Commercial grade copper wire with standard PVC sheath. Conductor electrical resistance recorded at 14.5 ohm/km (exceeded standard limit). Flammability: Oxygen index tested at 23.5% (failed IS 10810 threshold). Water immersion test not completed due to early insulation puncture at 1.8 kV.";
-      
-      setReportText(dynamicReport);
+      setReportText(generateReportText("substandard", standard));
     } else if (type === "suspended") {
       setVendorName("Nova Lighting Devices");
       setGstin("33AAACB5555C1Z1");
       setBisLicense("CM/L-1234567");
-      setStandardClaimed(selectedTender?.mandatoryStandard || "IS 10322:Part 5:Sec 1:2012");
+      setStandardClaimed(standard);
       setOemAuthCode("OEM-NOVA-555");
       setLocalContent(60);
       setIsMsme(false);
@@ -160,18 +180,13 @@ export default function AuditorUI() {
       setVendorName(selectedTender?.bidNumber === "GEM/2026/B/849201" ? "Surya Agro-Power Cables (MSME)" : "Local Enterprise (MSME)");
       setGstin("27AAAFS5521K1Z2");
       setBisLicense("CM/L-7128941");
-      setStandardClaimed(selectedTender?.mandatoryStandard || "IS 694:2010");
+      setStandardClaimed(standard);
       setOemAuthCode("SURYA-OEM-DIRECT");
       setLocalContent(74);
       setIsMsme(true);
       setUdyamNumber("UDYAM-MH-01-0084921");
       setUploadedFileName("MSME_Type_Certificate.pdf");
-      
-      const dynamicReport = selectedTender?.clauses
-        ? selectedTender.clauses.map(c => `Tested for ${c.title}: ${c.requirement} - PASSED.`).join(" ")
-        : "Electrolytic copper purity tested at 99.91%. Conductor electrical resistance measured at 12.05 ohm/km. Insulation thickness nominal 0.70 mm. Oxygen index 29.8%. Passed 3 kV high voltage immersion test.";
-      
-      setReportText(dynamicReport);
+      setReportText(generateReportText("msme", standard));
     }
   };
 
@@ -473,194 +488,79 @@ export default function AuditorUI() {
           /* STAGE 1: STREAMLINED SETUP & AUDIT LAUNCHER                              */
           /* ========================================================================= */
           <div className="space-y-6">
-            {/* Step 1: 3 Premium Scenario Cards */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">
-                    Step 1: Choose a Bidder Profile to Audit
+                  <h3 className="text-base font-bold text-slate-900">
+                    Step 1: Select a Demonstration Profile
                   </h3>
-                  <p className="text-xs text-slate-500">
-                    Select a realistic demonstration profile or customize with your own company credentials
+                  <p className="text-sm text-slate-500">
+                    Choose a simple test case to see how the audit works, or enter custom details.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowCustomInputs(!showCustomInputs)}
-                  className="text-xs text-[#163F73] hover:text-blue-800 font-semibold flex items-center gap-1 cursor-pointer"
+                  className="text-sm text-[#163F73] hover:text-blue-800 font-semibold flex items-center gap-1 cursor-pointer bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
                 >
-                  <Sliders className="w-3.5 h-3.5" />
-                  <span>{showCustomInputs ? "Hide Custom Details" : "Edit Custom Bidder Data"}</span>
+                  <Sliders className="w-4 h-4" />
+                  <span>{showCustomInputs ? "Hide Custom Details" : "Enter Custom Details"}</span>
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                {/* Scenario 1: Tier-1 OEM (Pass) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Scenario 1: Compliant */}
                 <div
                   onClick={() => selectScenario("compliant")}
-                  className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative flex flex-col justify-between ${
+                  className={`p-5 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
                     activeScenario === "compliant"
-                      ? "border-emerald-500 bg-emerald-50/30 ring-1 ring-emerald-500 shadow-sm"
+                      ? "border-emerald-500 bg-emerald-50/50 shadow-md ring-1 ring-emerald-500"
                       : "border-slate-200 bg-white hover:border-emerald-300 hover:shadow-sm"
                   }`}
                 >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 uppercase">
-                        Expected: Qualified (100%)
-                      </span>
-                      {activeScenario === "compliant" && (
-                        <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center">
-                          <Check className="w-3 h-3" />
-                        </div>
-                      )}
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activeScenario === "compliant" ? "bg-emerald-600 text-white" : "bg-emerald-100 text-emerald-600"}`}>
+                      <Check className="w-4 h-4" />
                     </div>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <Award className="w-4 h-4 text-emerald-600" />
-                      <h4 className="text-sm font-bold text-slate-900">Havells India Limited</h4>
-                    </div>
-                    <p className="text-xs text-slate-500 leading-relaxed mb-3">
-                      Tier-1 Primary OEM with active BIS license <span className="font-mono text-slate-700">CM/L-8492015</span> and full NABL test compliance.
-                    </p>
+                    <h4 className="text-sm font-bold text-slate-900">Compliant Bidder</h4>
                   </div>
-                  <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
-                    <div>✓ Active GSTN & 0 CPPP debarment</div>
-                    <div>✓ 65% Local Content (Class-I MII)</div>
-                  </div>
+                  <p className="text-sm text-slate-600">A verified supplier with valid licenses and passing test reports.</p>
                 </div>
 
-                {/* Scenario 2: Sub-Standard (Reject) */}
+                {/* Scenario 2: Sub-Standard */}
                 <div
                   onClick={() => selectScenario("substandard")}
-                  className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative flex flex-col justify-between ${
+                  className={`p-5 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
                     activeScenario === "substandard"
-                      ? "border-rose-500 bg-rose-50/30 ring-1 ring-rose-500 shadow-sm"
+                      ? "border-rose-500 bg-rose-50/50 shadow-md ring-1 ring-rose-500"
                       : "border-slate-200 bg-white hover:border-rose-300 hover:shadow-sm"
                   }`}
                 >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 uppercase">
-                        Expected: Disqualified
-                      </span>
-                      {activeScenario === "substandard" && (
-                        <div className="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center">
-                          <Check className="w-3 h-3" />
-                        </div>
-                      )}
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activeScenario === "substandard" ? "bg-rose-600 text-white" : "bg-rose-100 text-rose-600"}`}>
+                      <XCircle className="w-4 h-4" />
                     </div>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <AlertTriangle className="w-4 h-4 text-rose-600" />
-                      <h4 className="text-sm font-bold text-slate-900">ShoddyTech Cables Corp</h4>
-                    </div>
-                    <p className="text-xs text-slate-500 leading-relaxed mb-3">
-                      High-risk vendor with expired BIS certificate, debarred on CPPP, and sub-standard resistance test failure.
-                    </p>
+                    <h4 className="text-sm font-bold text-slate-900">Failing Bidder</h4>
                   </div>
-                  <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
-                    <div className="text-rose-700">✕ Expired License CM/L-EXPIRED</div>
-                    <div className="text-rose-700">✕ Resistance 14.5 Ω/km (Violates limit)</div>
-                  </div>
+                  <p className="text-sm text-slate-600">A supplier with expired licenses and sub-standard test results.</p>
                 </div>
 
-                {/* Scenario 3: MSME Startup (MII) */}
+                {/* Scenario 3: MSME */}
                 <div
                   onClick={() => selectScenario("msme")}
-                  className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative flex flex-col justify-between ${
+                  className={`p-5 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
                     activeScenario === "msme"
-                      ? "border-blue-500 bg-blue-50/30 ring-1 ring-blue-500 shadow-sm"
+                      ? "border-blue-500 bg-blue-50/50 shadow-md ring-1 ring-blue-500"
                       : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm"
                   }`}
                 >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 uppercase">
-                        Expected: MSME Qualified
-                      </span>
-                      {activeScenario === "msme" && (
-                        <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center">
-                          <Check className="w-3 h-3" />
-                        </div>
-                      )}
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activeScenario === "msme" ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-600"}`}>
+                      <Building2 className="w-4 h-4" />
                     </div>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <Building2 className="w-4 h-4 text-blue-600" />
-                      <h4 className="text-sm font-bold text-slate-900">Surya Agro-Power (MSME)</h4>
-                    </div>
-                    <p className="text-xs text-slate-500 leading-relaxed mb-3">
-                      Registered domestic MSME with Udyam ID, claiming statutory EMD exemption and 74% Make-in-India content.
-                    </p>
+                    <h4 className="text-sm font-bold text-slate-900">MSME / Startup</h4>
                   </div>
-                  <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
-                    <div className="text-blue-700">✓ Udyam Verified · EMD Exempt</div>
-                    <div className="text-blue-700">✓ 74% Local Content (Class-I)</div>
-                  </div>
-                </div>
-
-                {/* Scenario 4: Suspended License */}
-                <div
-                  onClick={() => selectScenario("suspended")}
-                  className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative flex flex-col justify-between ${
-                    activeScenario === "suspended"
-                      ? "border-amber-500 bg-amber-50/30 ring-1 ring-amber-500 shadow-sm"
-                      : "border-slate-200 bg-white hover:border-amber-300 hover:shadow-sm"
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 uppercase">
-                        Suspended License
-                      </span>
-                      {activeScenario === "suspended" && (
-                        <div className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center">
-                          <Check className="w-3 h-3" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <ShieldAlert className="w-4 h-4 text-amber-600" />
-                      <h4 className="text-sm font-bold text-slate-900">Nova Lighting</h4>
-                    </div>
-                    <p className="text-xs text-slate-500 leading-relaxed mb-3">
-                      License currently suspended by BIS due to recent factory surveillance failure.
-                    </p>
-                  </div>
-                  <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
-                    <div className="text-amber-700">✕ CM/L-1234567 Suspended</div>
-                  </div>
-                </div>
-
-                {/* Scenario 5: Scope Mismatch */}
-                <div
-                  onClick={() => selectScenario("scopemismatch")}
-                  className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative flex flex-col justify-between ${
-                    activeScenario === "scopemismatch"
-                      ? "border-purple-500 bg-purple-50/30 ring-1 ring-purple-500 shadow-sm"
-                      : "border-slate-200 bg-white hover:border-purple-300 hover:shadow-sm"
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 uppercase">
-                        Scope Mismatch
-                      </span>
-                      {activeScenario === "scopemismatch" && (
-                        <div className="w-5 h-5 rounded-full bg-purple-500 text-white flex items-center justify-center">
-                          <Check className="w-3 h-3" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <Layers className="w-4 h-4 text-purple-600" />
-                      <h4 className="text-sm font-bold text-slate-900">MedLife Equipments</h4>
-                    </div>
-                    <p className="text-xs text-slate-500 leading-relaxed mb-3">
-                      Active BIS license, but approved for a different IS standard (Oxygen Cylinders instead of required).
-                    </p>
-                  </div>
-                  <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
-                    <div className="text-purple-700">✕ IS Standard Mismatch</div>
-                  </div>
+                  <p className="text-sm text-slate-600">A registered MSME claiming local content and EMD exemption.</p>
                 </div>
               </div>
             </div>

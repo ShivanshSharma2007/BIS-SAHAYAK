@@ -11,6 +11,11 @@ import { useAppStore } from "@/store/useAppStore";
 import { VoiceAssistantManager, POPULAR_VOICE_QUERIES } from "@/lib/speech";
 import { getTranslation } from "@/lib/i18n/translations";
 import { useSession } from "next-auth/react";
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Cell
+} from "recharts";
+
+
 
 /*
   BIS-inspired card palette
@@ -96,7 +101,7 @@ export default function Dashboard() {
   // @ts-ignore
   const userRole = session?.user?.department || "General";
 
-  const [stats, setStats]               = useState({ standardsCount: 634, activeLabsCount: 12, compliancePassRate: 94.2 });
+  const [stats, setStats]               = useState<any>({ standardsCount: 634, activeLabsCount: 12, compliancePassRate: 94.2, complianceData: [], sectorData: [] });
   const [searchQuery, setSearchQuery]   = useState("");
   const [isListening, setIsListening]   = useState(false);
   const [voiceStatus, setVoiceStatus]   = useState<string | null>(null);
@@ -439,6 +444,61 @@ export default function Dashboard() {
             ))}
           </div>
 
+          {/* ── Analytics Dashboard (Impressive Data Representation) ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+              <h3 className="text-[14px] font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-emerald-500" />
+                Compliance Pass Rate Trends
+              </h3>
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={stats.complianceData || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorPassed" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} />
+                    <RechartsTooltip 
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+                      cursor={{ stroke: '#94A3B8', strokeWidth: 1, strokeDasharray: '4 4' }}
+                    />
+                    <Area type="monotone" dataKey="passed" stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#colorPassed)" activeDot={{ r: 6, fill: '#10B981', stroke: '#fff', strokeWidth: 2 }} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+              <h3 className="text-[14px] font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-blue-500" />
+                Standards Analyzed by Sector
+              </h3>
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.sectorData || []} margin={{ top: 10, right: 10, left: -10, bottom: 0 }} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
+                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} />
+                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} width={140} />
+                    <RechartsTooltip 
+                      cursor={{ fill: '#F1F5F9' }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+                    />
+                    <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24}>
+                      {(stats.sectorData || []).map((entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
           {/* ── Bottom panels ── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
 
@@ -460,27 +520,31 @@ export default function Dashboard() {
                 </button>
               </div>
               <div className="divide-y divide-slate-100 flex-1">
-                {[
-                  { title: "Smart Wearables included under CRS Phase IV",    date: "Aug 28", tag: "NEW",    tagBg: "#DC2626", dot: "#FCA5A5", desc: "Ministry of Electronics & IT expanded Compulsory Registration Scheme." },
-                  { title: "Revised Safety Requirements for EV Battery Packs", date: "Aug 15", tag: "NEW",    tagBg: "#DC2626", dot: "#FCA5A5", desc: "IS 16046 (Part 2) amended with thermal runaway propagation testing." },
-                  { title: "Updated Microwave Leakage Tolerance Limits",      date: "Jul 30", tag: "UPDATE", tagBg: "#D97706", dot: "#FCD34D", desc: "IS 302-2-25 revised with stricter microwave leakage limits." },
-                ].map((u, i) => (
-                  <div
-                    key={i}
-                    onClick={() => setActiveDrawer("alerts")}
-                    className="flex gap-3 px-5 py-4 hover:bg-slate-50 cursor-pointer transition-colors"
-                  >
-                    <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: u.dot }} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
-                        <span className="text-[13px] font-bold text-slate-800 truncate">{u.title}</span>
-                        <span className="text-[9px] font-bold text-white px-1.5 py-0.5 rounded shrink-0" style={{ background: u.tagBg }}>{u.tag}</span>
+                {(stats.recentAlerts || []).map((alert: any, i: number) => {
+                  const d = new Date(alert.date);
+                  const dateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                  const tag = alert.isNew ? "NEW" : "UPDATE";
+                  const tagBg = alert.severity === 'high' ? "#DC2626" : alert.severity === 'medium' ? "#D97706" : "#2563EB";
+                  const dot = alert.severity === 'high' ? "#FCA5A5" : alert.severity === 'medium' ? "#FCD34D" : "#93C5FD";
+                  
+                  return (
+                    <div
+                      key={alert.id || i}
+                      onClick={() => setActiveDrawer("alerts")}
+                      className="flex gap-3 px-5 py-4 hover:bg-slate-50 cursor-pointer transition-colors"
+                    >
+                      <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: dot }} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+                          <span className="text-[13px] font-bold text-slate-800 truncate">{alert.title}</span>
+                          <span className="text-[9px] font-bold text-white px-1.5 py-0.5 rounded shrink-0" style={{ background: tagBg }}>{tag}</span>
+                        </div>
+                        <p className="text-[12px] text-slate-500 line-clamp-1">{alert.description}</p>
                       </div>
-                      <p className="text-[12px] text-slate-500 line-clamp-1">{u.desc}</p>
+                      <span className="text-[11px] font-medium text-slate-400 shrink-0 mt-0.5">{dateStr}</span>
                     </div>
-                    <span className="text-[11px] font-medium text-slate-400 shrink-0 mt-0.5">{u.date}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

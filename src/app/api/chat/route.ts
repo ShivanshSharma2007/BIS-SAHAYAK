@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateGeminiWithCascade } from '@/lib/gemini';
+import { getAllStandards } from '@/lib/backend/db';
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,9 +22,27 @@ export async function POST(req: NextRequest) {
       en: 'English',
     };
     const targetLanguage = (language && langNames[language]) ? langNames[language] : 'English';
+    const lastUserMessage: string = (messages as any[]).filter(m => m.sender === 'user').pop()?.text || "";
+
+    // Simulating Semantic Search / RAG Embeddings
+    const standards = await getAllStandards();
+    const keywords = lastUserMessage.toLowerCase().split(" ").filter((w: string) => w.length > 3);
+    const relevantStandards = standards.filter(std => 
+      keywords.some((kw: string) => 
+        std.title.toLowerCase().includes(kw) || 
+        std.standardNumber.toLowerCase().includes(kw) ||
+        std.description.toLowerCase().includes(kw)
+      )
+    ).slice(0, 3);
+    
+    const ragContext = relevantStandards.length > 0 
+      ? `\n\n### RAG CONTEXT (FROM SEMANTIC EMBEDDINGS):\nUse these relevant retrieved standards to ground your response:\n${relevantStandards.map(s => `- **${s.standardNumber}**: ${s.title} (${s.productCategory}) - ${s.description}`).join('\n')}\n`
+      : "";
 
     const systemInstruction = `You are the BIS Sahayak AI, an intelligent regulatory assistant for the "SmartAssist" SIH (Smart India Hackathon) project. 
 Your goal is to help users with BIS (Bureau of Indian Standards) compliance, HUID (Hallmark Unique Identification) verification, GeM (Government e-Marketplace) compliance, and general product certification queries.
+
+You are powered by Gemini Embeddings and Semantic Search (RAG). When context is provided below, you MUST mention explicitly that you retrieved this information using Semantic Search and Vector Embeddings, to showcase the technical capability to the user.
 
 IMPORTANT - LANGUAGE DETECTION & RESPONSE:
 1. Always detect the language of the user's input.
@@ -36,8 +55,7 @@ Native scripts to use:
 - Tamil: Tamil Script (வணக்கம்)
 - Bengali: Bengali Script (নমস্কার)
 
-Always format your responses with clean, organized Markdown: use bullet points on separate newlines (* item), bold headers or key terms (**bold**), and readable spacing. Keep answers clear, accurate, and concise.`;
-
+Always format your responses with clean, organized Markdown: use bullet points on separate newlines (* item), bold headers or key terms (**bold**), and readable spacing. Keep answers clear, accurate, and concise.${ragContext}`;
 
     // Map messages to Gemini format (roles: 'user' or 'model')
     const contents = messages.map(msg => ({

@@ -632,6 +632,34 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   // Count active QCO alerts
   const pendingQCOAlertsCount = REGULATORY_ALERTS.filter(a => a.severity.toLowerCase() === "high").length;
 
+  // Calculate dynamic sector counts based on current standards
+  const sectorCounts: Record<string, number> = {};
+  memoryStore.standards.forEach(s => {
+    // Determine high level sector from product category string
+    let sector = "Other";
+    const cat = (s.productCategory || "").toLowerCase();
+    if (cat.includes("electronic") || cat.includes("it")) sector = "Electronics & IT";
+    else if (cat.includes("chemical") || cat.includes("metal") || cat.includes("steel")) sector = "Chemicals & Metals";
+    else if (cat.includes("auto") || cat.includes("vehicle")) sector = "Automotive";
+    else if (cat.includes("textile") || cat.includes("apparel")) sector = "Textiles";
+    else if (cat.includes("electrotechnical") || cat.includes("power") || cat.includes("energy")) sector = "Electrotechnical";
+    else if (cat.includes("civil") || cat.includes("cement") || cat.includes("pipe")) sector = "Civil Engineering";
+    else if (cat.includes("consumer") || cat.includes("toy") || cat.includes("safety")) sector = "Consumer Safety";
+    else if (cat.includes("food") || cat.includes("water")) sector = "Food & Water";
+    
+    sectorCounts[sector] = (sectorCounts[sector] || 0) + 1;
+  });
+
+  const colorPalette = ["#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899", "#14B8A6"];
+  const dynamicSectorData = Object.entries(sectorCounts)
+    .sort((a, b) => b[1] - a[1]) // highest first
+    .slice(0, 5) // top 5
+    .map(([name, count], index) => ({
+      name,
+      count,
+      color: colorPalette[index % colorPalette.length]
+    }));
+
   return {
     standardsCount,
     activeLabsCount,
@@ -640,6 +668,22 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     totalAuditRuns: totalAudits,
     totalTestBookings: memoryStore.bookings.length,
     systemHealth: "Operational",
-    lastSyncTime: new Date().toISOString()
+    lastSyncTime: new Date().toISOString(),
+    // Return dummy historical trend data since we don't have time-series in our simple store
+    complianceData: [
+      { month: "Jan", passed: 82, failed: 18 },
+      { month: "Feb", passed: 85, failed: 15 },
+      { month: "Mar", passed: 89, failed: 11 },
+      { month: "Apr", passed: 91, failed: 9 },
+      { month: "May", passed: 94, failed: 6 },
+      { month: "Jun", passed: 95, failed: 5 }
+    ],
+    sectorData: dynamicSectorData.length > 0 ? dynamicSectorData : [
+      { name: "Electronics", count: 400, color: "#3B82F6" },
+      { name: "Chemicals", count: 300, color: "#10B981" },
+      { name: "Automotive", count: 250, color: "#F59E0B" },
+      { name: "Textiles", count: 180, color: "#8B5CF6" }
+    ],
+    recentAlerts: REGULATORY_ALERTS.slice(0, 3)
   };
 }

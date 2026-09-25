@@ -11,7 +11,18 @@ const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-      checks: ["none"],
+      checks: ["state"],
+      authorization: {
+        url: "https://accounts.google.com/o/oauth2/v2/auth",
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+          scope: "openid email profile",
+        },
+      },
+      token: "https://oauth2.googleapis.com/token",
+      userinfo: "https://openidconnect.googleapis.com/v1/userinfo",
     }),
     CredentialsProvider({
       id: "otp",
@@ -131,14 +142,22 @@ const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET || "fallback_secret_for_dev_12345",
+  debug: true,
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         const cleanEmail = (user?.email || "").trim().toLowerCase();
-        const existingUser = await LocalDB.findUserByEmail(cleanEmail);
+        let existingUser = await LocalDB.findUserByEmail(cleanEmail);
         if (!existingUser) {
-          // Deny access if they have not signed up first
-          return "/login?error=NotRegistered";
+          // Auto-register the user if they don't exist
+          const adminEmails = ["shivansh.sharma9311@gmail.com", "khanyusuf2006@gmail.com"];
+          const isAdmin = adminEmails.includes(cleanEmail);
+          existingUser = await LocalDB.createUser({
+            name: user?.name || cleanEmail.split('@')[0],
+            email: cleanEmail,
+            role: isAdmin ? "admin" : "user",
+            department: "General",
+          });
         }
       }
       return true;

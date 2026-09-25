@@ -22,7 +22,7 @@ let notificationsStore: SystemNotification[] = [
     message: "Ministry of Electronics & IT (MeitY) has mandated IS 16046 (Part 2) for smart wearables and IoT equipment.",
     category: "REGULATORY",
     severity: "CRITICAL",
-    timestamp: "10 mins ago",
+    timestamp: "Aug 28",
     read: false,
     actionDrawer: "alerts",
     referenceCode: "CG-DL-E-280826"

@@ -61,6 +61,23 @@ export async function POST(req: NextRequest) {
     // Check if Gemini API is configured
     if (apiKey) {
       try {
+        // --- DATA MASKING IMPLEMENTATION (PRIVACY PRESERVATION) ---
+        // We mask sensitive PII and business identifiers before sending to the LLM
+        const maskedVendorName = "[MASKED_BIDDER_ID]";
+        let maskedReportText = bidderReportText ? bidderReportText.replace(new RegExp(vendorName, "gi"), maskedVendorName) : "";
+        
+        const maskedSpecs: Record<string, string> = { ...bidderClaimedSpecs };
+        if (maskedSpecs.GSTIN) {
+          maskedReportText = maskedReportText.replace(new RegExp(maskedSpecs.GSTIN, "gi"), "[MASKED_GSTIN]");
+          maskedSpecs.GSTIN = "[MASKED_GSTIN]";
+        }
+        if (maskedSpecs["BIS License"]) {
+          maskedReportText = maskedReportText.replace(new RegExp(maskedSpecs["BIS License"], "gi"), "[MASKED_LICENSE]");
+          maskedSpecs["BIS License"] = "[MASKED_LICENSE]";
+        }
+        maskedSpecs.Vendor = maskedVendorName;
+        // --------------------------------------------------------
+
         const prompt = `You are an expert Government Procurement Technical Auditor for GeM (Government e-Marketplace, India) and BIS (Bureau of Indian Standards).
 Your duty is to conduct an authoritative, uncompromising clause-by-clause compliance audit comparing the Buyer's Tender Specifications against the Bidder's Submitted Lab Test Report and Technical Datasheet.
 
@@ -74,11 +91,11 @@ ${thresholdContext}
 ${JSON.stringify(tender.clauses, null, 2)}
 
 === BIDDER SUBMISSION ===
-Bidder Name: ${vendorName}
-Bidder Stated Specs: ${JSON.stringify(bidderClaimedSpecs, null, 2)}
+Bidder Name: ${maskedVendorName}
+Bidder Stated Specs: ${JSON.stringify(maskedSpecs, null, 2)}
 Bidder Lab Test Report / Datasheet Extract:
 """
-${bidderReportText || "No lab test report provided. Only generic claims submitted."}
+${maskedReportText || "No lab test report provided. Only generic claims submitted."}
 """
 
 === AUDIT INSTRUCTIONS ===

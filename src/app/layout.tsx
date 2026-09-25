@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import FeatureDrawer from "@/components/FeatureDrawer";
 import AIAssistant from "@/components/AIAssistant";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -35,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[#F7F9FB] text-slate-900 flex flex-col font-sans`}
+        className={`${inter.variable} min-h-screen bg-[#F7F9FB] text-slate-900 flex flex-col font-sans`}
       >
         <NextAuthProvider>
           <Header />

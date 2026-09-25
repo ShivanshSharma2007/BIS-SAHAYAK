@@ -175,4 +175,7 @@ export interface DashboardStats {
   totalTestBookings: number;
   systemHealth: "Operational" | "Degraded";
   lastSyncTime: string;
+  complianceData?: { month: string; passed: number; failed: number }[];
+  sectorData?: { name: string; count: number; color: string }[];
+  recentAlerts?: any[];
 }

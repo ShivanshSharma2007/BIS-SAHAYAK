@@ -12,7 +12,6 @@ export interface SpeechRecognitionHandlers {
 export class VoiceAssistantManager {
   private recognition: any = null;
   private isListening: boolean = false;
-  private mediaStream: MediaStream | null = null;
 
   public isSupported(): boolean {
     if (typeof window === 'undefined') return false;
@@ -25,7 +24,9 @@ export class VoiceAssistantManager {
     // Check microphone hardware permission first via getUserMedia
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       try {
-        this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Immediately release the manually acquired stream since SpeechRecognition will spawn its own
+        stream.getTracks().forEach(track => track.stop());
       } catch (err: any) {
         console.warn('Microphone permission request failed:', err);
         const name = err.name || '';
@@ -148,12 +149,7 @@ export class VoiceAssistantManager {
   }
 
   private cleanupStream(): void {
-    if (this.mediaStream) {
-      try {
-        this.mediaStream.getTracks().forEach(track => track.stop());
-      } catch (_) {}
-      this.mediaStream = null;
-    }
+    // No longer needed as we don't hold onto a manual MediaStream instance
   }
 }
 

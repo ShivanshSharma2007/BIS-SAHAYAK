@@ -33,9 +33,17 @@ export default function LoginPage() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const err = params.get("error");
+      if (err) {
+        console.error("Auth Error:", err);
+      }
+      
       if (err === "NotRegistered" || err === "AccountNotFound") {
         setErrorMessage("Access Denied: No account found with this email. Please register on the Sign Up tab first.");
         setIsSignUp(true);
+      } else if (err === "OAuthSignin" || err === "OAuthCallback" || err === "Callback" || err === "OAuthCreateAccount") {
+        setErrorMessage(`Google Login Failed (${err}). Please check if your Google Client ID/Secret are correct, or try again.`);
+      } else if (err) {
+        setErrorMessage(`Authentication Error: ${err}`);
       }
     }
   }, []);
